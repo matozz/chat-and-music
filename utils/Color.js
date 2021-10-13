@@ -1,0 +1,17 @@
+export default {
+  Transparent: "transparent",
+  SystemRed: "#FF453A",
+  SystemOrange: "#FF9F0A",
+  SystemTeal: "#64D2FF",
+  SystemBlue: "#0A84FF",
+  SystemIndigo: "#5E5CE6",
+  SystemGray1: "#8E8E93",
+  SystemGray2: "#636366",
+  SystemGray3: "#48484A",
+  SystemGray4: "#3A3A3C",
+  SystemGray4Alpha: "#3A3A3C98",
+  SystemGray5: "#2C2C2E",
+  SystemGray6: "#1C1C1E",
+  SystemBlack: "#000",
+  SystemWhite: "#fff",
+};

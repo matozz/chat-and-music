@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import ProgressLabel from "react-progress-label";
 import { Audio } from "expo-av";
+import MusicContext from "../context/MusicContext";
 
 const SOUND_SAMPLES = {
   Drum1T: {
@@ -117,13 +118,14 @@ const SOUND_SAMPLES = {
 const PadItem = ({
   type,
   color,
-  time,
   instrument,
   steps,
   bpm,
   sampleName,
   displayName,
   status,
+  row,
+  col,
 }) => {
   const [playing, setPlaying] = useState(false);
   const [ready, setReady] = useState(false);
@@ -131,6 +133,8 @@ const PadItem = ({
   const [currentStep, setCurrentStep] = useState(1);
   const [sound1, setSound1] = useState();
   const [loading, setLoading] = useState(false);
+
+  const { handleRecord, isRecording, time } = useContext(MusicContext);
 
   useEffect(() => {
     const getSound = async () => {
@@ -153,20 +157,15 @@ const PadItem = ({
 
   async function playSound() {
     console.log("Playing Sound");
+
+    // console.log(displayName, row, col, isRecording);
+    // if (isRecording) {
+    //   handleRecord({ row: row, col: col, active: true });
+    // }
+
     await sound1.playAsync();
     sound1.setProgressUpdateIntervalAsync(100);
-    // sound1.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate1);
-    // await sound1.setIsLoopingAsync(true);
   }
-
-  const onPlaybackStatusUpdate1 = (playBackStatus) => {
-    console.log(playBackStatus);
-    const { didJustFinish } = playBackStatus;
-    if (didJustFinish) {
-      console.log("finish");
-      sound1.replayAsync();
-    }
-  };
 
   useEffect(() => {
     Audio.setIsEnabledAsync(true);
@@ -181,14 +180,14 @@ const PadItem = ({
     });
   }, []);
 
-  // useEffect(() => {
-  //   return sound1
-  //     ? () => {
-  //         console.log("Unloading Sound");
-  //         sound1.unloadAsync();
-  //       }
-  //     : undefined;
-  // }, [sound1]);
+  useEffect(() => {
+    return sound1
+      ? () => {
+          console.log("Unloading Sound");
+          sound1.unloadAsync();
+        }
+      : undefined;
+  }, []);
 
   useEffect(() => {
     if (status == "play") {
@@ -200,7 +199,9 @@ const PadItem = ({
           sound1 &&
             sound1
               .getStatusAsync()
-              .then((status) => status.isPlaying && sound1.stopAsync())
+              .then((status) => {
+                status.isPlaying && sound1.stopAsync();
+              })
               .then(() => sound1.setPositionAsync(0));
         }
 
@@ -216,31 +217,19 @@ const PadItem = ({
         } else {
           setCurrentStep(currentStep + 1);
         }
-
-        // sound1.setPositionAsync(466 * ((time % step) - 1));
-        // console.log(time % step);
-        // sound1.getStatusAsync().then((status) => console.log(status));
-        // if (currentStep % step == 0) {
-        //   console.log("Time Sync");
-        //   sound1.replayAsync();
-        // }
       } else {
         setCurrentStep(currentStep + 1);
-        // console.log(time % 4);
         if (time % 4 == 1) {
           setPlaying(false);
           setCurrentStep(1);
           sound1 &&
             sound1
               .getStatusAsync()
-              .then((status) => status.isPlaying && sound1.stopAsync())
+              .then((status) => {
+                status.isPlaying && sound1.stopAsync();
+              })
               .then(() => sound1.setPositionAsync(0));
         }
-        // if (time % 4 == 1) {
-        //   setTimeout(() => {
-
-        //   }, 300);
-        // }
       }
     } else {
       setPlaying(false);
@@ -249,7 +238,9 @@ const PadItem = ({
         sound1 &&
           sound1
             .getStatusAsync()
-            .then((status) => status.isPlaying && sound1.stopAsync())
+            .then((status) => {
+              status.isPlaying && sound1.stopAsync();
+            })
             .then(() => sound1.setPositionAsync(0));
       }, 300);
       setReady(false);
@@ -260,21 +251,23 @@ const PadItem = ({
     <View style={{ flex: 1, borderRightWidth: 1 }}>
       <TouchableOpacity
         onPress={() => {
-          if (type != "shot") setReady(!ready);
-          else {
+          if (type != "shot") {
+            if (isRecording) {
+              handleRecord({ row: row, col: col, active: !ready });
+            }
+            setReady(!ready);
+          } else {
             if (status == "play") {
               setPlaying(true);
               playSound();
             }
           }
-          // playSound();
         }}
         style={{
           alignItems: "center",
           height: 72,
           justifyContent: "center",
           backgroundColor: playing ? color : "transparent",
-          borderRadius: 10,
           position: "relative",
         }}
       >
@@ -326,7 +319,7 @@ const PadItem = ({
               </Text> */}
                 {playing && (
                   <ProgressLabel
-                    size={40}
+                    size={38}
                     progress={100 / step}
                     trackColor={color}
                     progressColor="#efefef"
@@ -421,10 +414,9 @@ const PadItem = ({
         {type === "shot" && (
           <View
             style={{
-              width: 60,
+              width: 50,
               backgroundColor: playing ? "#252525" : color,
               height: 4,
-              borderRadius: 10,
               marginHorizontal: 7.5,
               marginTop: 10,
               alignItems: "center",
@@ -446,15 +438,15 @@ const PadItem = ({
               <View
                 style={[
                   {
-                    height: 6,
-                    width: 60 / step,
+                    height: 4,
+                    width: 50 / step,
                     backgroundColor: "#efefef",
                     borderRadius: 10,
                     alignSelf: "flex-start",
                   },
                   {
                     transform: [
-                      { translateX: ((60 / step) * (currentStep - 1)) % 60 },
+                      { translateX: ((50 / step) * (currentStep - 1)) % 50 },
                     ],
                   },
                 ]}
@@ -467,7 +459,7 @@ const PadItem = ({
                     position: "absolute",
                     backgroundColor: playing ? color : "#252525",
                     width: 5,
-                    height: 6,
+                    height: 4,
                   }}
                 />
               </>
@@ -477,10 +469,10 @@ const PadItem = ({
                 <View
                   style={{
                     position: "absolute",
-                    left: 12,
+                    left: 9,
                     backgroundColor: playing ? color : "#252525",
                     width: 5,
-                    height: 6,
+                    height: 4,
                   }}
                 />
                 <View
@@ -488,16 +480,16 @@ const PadItem = ({
                     position: "absolute",
                     backgroundColor: playing ? color : "#252525",
                     width: 5,
-                    height: 6,
+                    height: 4,
                   }}
                 />
                 <View
                   style={{
                     position: "absolute",
-                    right: 12,
+                    right: 9,
                     backgroundColor: playing ? color : "#252525",
                     width: 5,
-                    height: 6,
+                    height: 4,
                   }}
                 />
               </>

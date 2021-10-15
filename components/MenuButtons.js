@@ -23,7 +23,7 @@ const BUTTONS = [
       <MaterialCommunityIcons name="folder-music" size={28} color="white" />
     ),
     color: Color.SystemBlue,
-    label: "我的灵感",
+    label: "灵感",
     nav: "Idea",
   },
   {
@@ -67,7 +67,7 @@ export default MenuButtons;
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 25,
+    marginTop: 30,
     paddingBottom: 10,
     borderBottomColor: "#1f1f1f",
     borderBottomWidth: 1,

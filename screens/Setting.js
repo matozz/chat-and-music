@@ -1,3 +1,4 @@
+import { signOut } from "@firebase/auth";
 import React, { useContext, useLayoutEffect, useState } from "react";
 import {
   Alert,
@@ -9,6 +10,8 @@ import {
 } from "react-native";
 import Loading from "../components/Loading";
 import AppContext from "../context/AppContext";
+import { auth } from "../firebase";
+import { socket } from "../sockets";
 
 const Setting = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
@@ -41,11 +44,15 @@ const Setting = ({ navigation }) => {
         text: "Comfirm",
         onPress: () => {
           setLoading(true);
-          const timer = setTimeout(() => {
+          auth.signOut().then(() => {
+            socket.emit("go-offline", {
+              userinfo: {
+                name: 123,
+                id: 1,
+              },
+            });
             navigation.replace("Login");
-            // setLoading(false);
-            clearTimeout(timer);
-          }, 1000);
+          });
         },
         style: "destructive",
       },
@@ -60,8 +67,8 @@ const Setting = ({ navigation }) => {
           <Text style={styles.label}>Username</Text>
           <TextInput
             style={styles.input}
-            onChangeText={(text) => setUser(text)}
-            value={user}
+            // onChangeText={(text) => setUser(text)}
+            value={user?.displayName}
             autoFocus
             placeholderTextColor={"#858585"}
             placeholder="Enter username"

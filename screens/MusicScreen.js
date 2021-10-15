@@ -1,10 +1,17 @@
-import React, { useEffect, useLayoutEffect, useState, useRef } from "react";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useState,
+  useRef,
+  useContext,
+} from "react";
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
   SafeAreaView,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import PadList from "../components/PadList";
@@ -12,6 +19,11 @@ import { Modalize } from "react-native-modalize";
 // import { Portal } from "react-native-portalize";
 import MuiscOption from "../components/MuiscOption";
 import MusicActionBar from "../components/MusicActionBar";
+import MusicContext from "../context/MusicContext";
+import { PACKS } from "../utils/MusicPacks";
+import Loading from "../components/Loading";
+import { db, firebase } from "../firebase";
+import AppContext from "../context/AppContext";
 
 function useInterval(callback, delay) {
   const savedCallback = useRef();
@@ -30,277 +42,29 @@ function useInterval(callback, delay) {
   }, [delay]);
 }
 
-const PACKS = [
-  {
-    name: "The ChainSmokers",
-    padLists: [
-      {
-        type: "loop",
-        padItems: [
-          {
-            sampleName: "Drum1T",
-            displayName: "Drum1T",
-            instrument: "Drum",
-            steps: 4,
-          },
-          {
-            sampleName: "Drum1H",
-            displayName: "Drum1H",
-            instrument: "Drum",
-            steps: 4,
-          },
-          {
-            sampleName: "Drum1C",
-            displayName: "Drum1C",
-            instrument: "Drum",
-            steps: 8,
-          },
-          {
-            sampleName: "Drum1L",
-            displayName: "Drum1L",
-            instrument: "Drum",
-            steps: 4,
-          },
-          {
-            sampleName: "Piano1L",
-            displayName: "Piano1L",
-            instrument: "Piano",
-            steps: 8,
-          },
-        ],
-      },
-      {
-        type: "loop",
-        padItems: [
-          {
-            sampleName: "HiHat1T",
-            displayName: "HiHat1T",
-            instrument: "HiHat",
-            steps: 32,
-          },
-          {
-            sampleName: "Synth1R",
-            displayName: "Synth1R",
-            instrument: "Synth",
-            steps: 8,
-          },
-          {
-            sampleName: "Synth1C",
-            displayName: "Synth1C",
-            instrument: "Synth",
-            steps: 8,
-          },
-          {
-            sampleName: "HiHat1C",
-            displayName: "HiHat1C",
-            instrument: "HiHat",
-            steps: 8,
-          },
-          {
-            sampleName: "HiHat1L",
-            displayName: "HiHat1L",
-            instrument: "HiHat",
-            steps: 8,
-          },
-        ],
-      },
-      {
-        type: "loop",
-        padItems: [
-          {
-            sampleName: "Bass1T",
-            displayName: "Bass1T",
-            instrument: "Bass",
-            steps: 16,
-          },
-          {
-            sampleName: "Bass1H",
-            displayName: "Bass1H",
-            instrument: "Bass",
-            steps: 8,
-          },
-          {
-            sampleName: "Bass1C",
-            displayName: "Bass1C",
-            instrument: "Bass",
-            steps: 32,
-          },
-          {
-            sampleName: "Bass1L",
-            displayName: "Bass1L",
-            instrument: "Bass",
-            steps: 8,
-          },
-          {
-            sampleName: "Synth1L",
-            displayName: "Synth1L",
-            instrument: "Synth",
-            steps: 16,
-          },
-        ],
-      },
-      {
-        type: "loop",
-        padItems: [
-          {
-            sampleName: "Chord1T",
-            displayName: "Chord1T",
-            instrument: "Chord",
-            steps: 16,
-          },
-          {
-            sampleName: "Melody1H",
-            displayName: "Melody1H",
-            instrument: "Melody",
-            steps: 16,
-          },
-          {
-            sampleName: "Chord1R",
-            displayName: "Chord1R",
-            instrument: "Chord",
-            steps: 16,
-          },
-          {
-            sampleName: "Chord2R",
-            displayName: "Chord2R",
-            instrument: "Chord",
-            steps: 16,
-          },
-          {
-            sampleName: "Chord1L",
-            displayName: "Chord1L",
-            instrument: "Chord",
-            steps: 8,
-          },
-        ],
-      },
-      {
-        type: "loop",
-        padItems: [
-          {
-            sampleName: "Guitar1T",
-            displayName: "Guitar1T",
-            instrument: "Guitar",
-            steps: 16,
-          },
-          {
-            sampleName: "Guitar2T",
-            displayName: "Guitar2T",
-            instrument: "Guitar",
-            steps: 8,
-          },
-          {
-            sampleName: "Guitar1C",
-            displayName: "Guitar1C",
-            instrument: "Guitar",
-            steps: 16,
-          },
-          {
-            sampleName: "Guitar2C",
-            displayName: "Guitar2C",
-            instrument: "Guitar",
-            steps: 16,
-          },
-          {
-            sampleName: "Guitar1L",
-            displayName: "Guitar1L",
-            instrument: "Guitar",
-            steps: 4,
-          },
-        ],
-      },
-      {
-        type: "loop",
-        padItems: [
-          {
-            sampleName: "Piano1T",
-            displayName: "Piano1T",
-            instrument: "Piano",
-            steps: 8,
-          },
-          {
-            sampleName: "Violin1T",
-            displayName: "Violin1T",
-            instrument: "Strings",
-            steps: 8,
-          },
-          {
-            sampleName: "Vocal1T",
-            displayName: "Vocal1T",
-            instrument: "Vocal",
-            steps: 16,
-          },
-          {
-            sampleName: "Vocal1R",
-            displayName: "Vocal1R",
-            instrument: "Vocal",
-            steps: 16,
-          },
-          {
-            sampleName: "Piano1C",
-            displayName: "Piano1C",
-            instrument: "Piano",
-            steps: 16,
-          },
-        ],
-      },
-      {
-        type: "shot",
-        padItems: [
-          {
-            sampleName: "Siren1H",
-            displayName: "Siren1H",
-            instrument: "FX",
-            steps: 4,
-          },
-          {
-            sampleName: "Woo1R",
-            displayName: "Woo1R",
-            instrument: "FX",
-            steps: 4,
-          },
-          {
-            sampleName: "Woo2R",
-            displayName: "Woo2R",
-            instrument: "FX",
-            steps: 2,
-          },
-          {
-            sampleName: "Drum1T",
-            displayName: "Drum",
-            instrument: "Drum",
-            steps: 4,
-          },
-          {
-            sampleName: "Drum1T",
-            displayName: "Drum",
-            instrument: "Drum",
-            steps: 4,
-          },
-        ],
-      },
-    ],
-  },
-  {
-    name: "Jay Chou",
-  },
-  {
-    name: "Trap",
-  },
-  {
-    name: "Tropical House",
-  },
-];
-
 const MusicScreen = ({ navigation, route }) => {
   const [time, setTime] = useState(1);
   const [bpm, setBpm] = useState(105);
   const [selectedBpm, setSelectedBpm] = useState(105);
   const [packIndex, setPackIndex] = useState(0);
   const [start, setStart] = useState(false);
+  const [mode, setMode] = useState("");
+  const [isRecording, setIsRecording] = useState(false);
+  const [effects, setEffects] = useState({});
+  const [recordTimeline, setRecordTimeline] = useState(null);
+  const [recording, setRecording] = useState({
+    pack: null,
+    bpm: null,
+    notes: [],
+  });
+  const [loading, setLoading] = useState(false);
   const modalizeRef = useRef(null);
 
   const { entry } = route.params;
+
+  const {
+    user: { user },
+  } = useContext(AppContext);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -364,12 +128,87 @@ const MusicScreen = ({ navigation, route }) => {
     modalizeRef.current?.close();
   }, [packIndex]);
 
+  useEffect(() => {
+    if (isRecording) {
+      setStart(true);
+      setRecording({ ...recording, bpm: bpm, pack: PACKS[packIndex].name });
+      setRecordTimeline(+new Date());
+    } else {
+      // -> save recording
+      if (recording.notes.length > 0) {
+        setLoading(true);
+        const timer = setTimeout(() => {
+          setLoading(false);
+          console.log(recording);
+          console.log(recording.notes.slice(-1));
+          Alert.alert(
+            "Save Recording?",
+            `Record time: ${Math.floor(
+              recording.notes.slice(-1)[0].timestamp / 1000
+            )}s`,
+            [
+              {
+                text: "Discard",
+                onPress: () => {},
+                style: "destructive",
+              },
+              {
+                text: "Save",
+                onPress: async () => {
+                  db.collection("users")
+                    .doc(user.uid)
+                    .collection("messages")
+                    .add({
+                      ...recording,
+                      createTime:
+                        firebase.firestore.FieldValue.serverTimestamp(),
+                    })
+                    .then((res) => alert("Save Success!"));
+                },
+              },
+            ]
+          );
+          clearTimeout(timer);
+        }, 1000);
+      }
+
+      setRecording({
+        pack: null,
+        bpm: null,
+        notes: [],
+      });
+    }
+  }, [isRecording]);
+
   const handleModalClose = () => {
     setBpm(selectedBpm);
   };
 
+  const handleRecord = ({ row, col, active }) => {
+    // took timeline & location -> push to the recording.notes
+    // console.log(row, col, active);
+    setRecording({
+      ...recording,
+      notes: [
+        ...recording.notes,
+        {
+          row,
+          col,
+          timestamp: +new Date() - recordTimeline,
+          active,
+        },
+      ],
+    });
+  };
+
   return (
-    <>
+    <MusicContext.Provider
+      value={{
+        handleRecord: handleRecord,
+        isRecording: isRecording,
+        time: time,
+      }}
+    >
       <Modalize
         ref={modalizeRef}
         modalHeight={580}
@@ -380,11 +219,13 @@ const MusicScreen = ({ navigation, route }) => {
         <MuiscOption
           bpm={bpm}
           setSelectedBpm={setSelectedBpm}
+          packIndex={packIndex}
           setPackIndex={setPackIndex}
         />
       </Modalize>
 
       <View style={{ backgroundColor: "#111111" }}>
+        <Loading show={loading} />
         <View
           style={{
             height: "100%",
@@ -407,17 +248,27 @@ const MusicScreen = ({ navigation, route }) => {
             PACKS[packIndex]?.padLists.map((value, index) => (
               <PadList
                 key={index}
+                row={index + 1}
                 type={value.type}
                 padItems={value.padItems}
-                time={time}
+                // time={time}
                 status={start ? "play" : "stop"}
                 bpm={bpm}
               />
             ))}
-          <MusicActionBar />
+          <MusicActionBar
+            setStart={setStart}
+            start={start}
+            setMode={setMode}
+            mode={mode}
+            setIsRecording={setIsRecording}
+            isRecording={isRecording}
+            setEffects={setEffects}
+            effects={effects}
+          />
         </View>
       </View>
-    </>
+    </MusicContext.Provider>
   );
 };
 

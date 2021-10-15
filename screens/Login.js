@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from "react";
+import React, { useContext, useLayoutEffect, useState } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -8,20 +8,52 @@ import {
   View,
 } from "react-native";
 import Loading from "../components/Loading";
+import AppContext from "../context/AppContext";
+import { auth, db, firebase } from "../firebase";
+import { socket } from "../sockets";
 import Color from "../utils/Color";
 
 const Login = ({ navigation }) => {
-  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const {
+    user: { user, setUser },
+  } = useContext(AppContext);
+
   const handleLogin = () => {
     setLoading(true);
-    const timer = setTimeout(() => {
-      navigation.popToTop();
-      // setLoading(false);
-      clearTimeout(timer);
-    }, 1000);
+
+    auth
+      .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .then(async () => {
+        const { user } = await auth.signInWithEmailAndPassword(email, password);
+
+        db.collection("users").doc(user.uid).set({
+          createTime: firebase.firestore.FieldValue.serverTimestamp(),
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+        });
+
+        setUser({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+        });
+        socket.emit("go-online", {
+          userinfo: {
+            name: 123,
+            id: 1,
+          },
+        });
+        navigation.popToTop();
+      })
+      .catch((err) => {
+        alert(err.message);
+        setLoading(false);
+      });
   };
 
   useLayoutEffect(() => {
@@ -34,17 +66,17 @@ const Login = ({ navigation }) => {
     <SafeAreaView style={styles.container}>
       <Loading show={loading} />
       <View style={{ paddingHorizontal: 16, paddingTop: 30 }}>
-        <Text style={styles.title}>Log in with your phone number</Text>
+        <Text style={styles.title}>Log in with your email</Text>
         <View style={styles.inputBox}>
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
-              onChangeText={(text) => setPhone(text)}
-              value={phone}
+              onChangeText={(text) => setEmail(text)}
+              value={email}
               placeholderTextColor={"#858585"}
-              placeholder="Phone number"
+              placeholder="Email"
               keyboardAppearance="dark"
-              keyboardType="number-pad"
+              keyboardType="email-address"
             />
           </View>
           <View style={styles.inputDivider}></View>

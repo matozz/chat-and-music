@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import Color from "../utils/Color";
 
 let allBpm = [];
 for (let i = 0; i < 120; i++) {
   allBpm.push(60 + i);
 }
 
-const MuiscOption = ({ bpm, setSelectedBpm, setPackIndex }) => {
+const MuiscOption = ({ bpm, setSelectedBpm, packIndex, setPackIndex }) => {
   const [bpm1, setBpm1] = useState(bpm);
 
   const PACKS = [
@@ -70,7 +71,11 @@ const MuiscOption = ({ bpm, setSelectedBpm, setPackIndex }) => {
       >
         {PACKS.map((value, index) => (
           <TouchableOpacity
-            style={styles.pack}
+            style={{
+              ...styles.pack,
+              backgroundColor:
+                packIndex === index ? Color.SystemBlue : "#303030",
+            }}
             key={index}
             activeOpacity={0.5}
             onPress={() => setPackIndex(index)}

@@ -13,6 +13,7 @@ const SearchBar = () => {
         // value={number}
         placeholderTextColor={"#858585"}
         placeholder="搜索"
+        keyboardAppearance="dark"
       />
     </View>
   );
@@ -31,10 +32,11 @@ const styles = StyleSheet.create({
   },
   text: {
     paddingLeft: 5,
-    fontWeight: "600",
+    fontWeight: "500",
     color: "white",
-    fontSize: 17,
+    fontSize: 16,
     width: "auto",
     width: 300,
+    paddingBottom: 1,
   },
 });

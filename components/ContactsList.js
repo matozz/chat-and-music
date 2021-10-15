@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  Dimensions,
   FlatList,
   Image,
   StyleSheet,
@@ -72,7 +73,10 @@ const ContactsList = () => {
 export default ContactsList;
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    width: Dimensions.get("window").width,
+    paddingLeft: 15,
+  },
   row: {
     flexDirection: "row",
     marginTop: 16,

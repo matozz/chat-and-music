@@ -1,4 +1,5 @@
-import React, { useLayoutEffect, useState } from "react";
+import { createUserWithEmailAndPassword, updateProfile } from "@firebase/auth";
+import React, { useContext, useLayoutEffect, useState } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -7,12 +8,20 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Loading from "../components/Loading";
+import AppContext from "../context/AppContext";
+import { auth } from "../firebase";
 import Color from "../utils/Color";
 
 const Register = ({ navigation }) => {
-  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const {
+    user: { user, setUser },
+  } = useContext(AppContext);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -20,21 +29,44 @@ const Register = ({ navigation }) => {
     });
   }, []);
 
+  const handleRegister = () => {
+    setLoading(true);
+
+    auth
+      .createUserWithEmailAndPassword(email, password)
+      .then((authUser) => {
+        authUser.user
+          .updateProfile({
+            displayName: userName,
+          })
+          .then(() => {
+            setUser({
+              uid: authUser.user.uid,
+              email: authUser.user.email,
+              displayName: authUser.user.displayName,
+            });
+          });
+        navigation.popToTop();
+      })
+      .catch((err) => alert(err.message), setLoading(false));
+  };
+
   return (
     <SafeAreaView style={styles.container}>
+      <Loading show={loading} />
       <View style={{ paddingHorizontal: 16, paddingTop: 20 }}>
         {/* <Text style={styles.title}>Log in with your phone number</Text> */}
         <View style={styles.inputBox}>
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
-              onChangeText={(text) => setPhone(text)}
-              value={phone}
+              onChangeText={(text) => setEmail(text)}
+              value={email}
               placeholderTextColor={"#858585"}
-              placeholder="Phone number"
+              placeholder="Email"
               autoFocus
               keyboardAppearance="dark"
-              keyboardType="number-pad"
+              keyboardType="email-address"
             />
           </View>
           <View style={styles.inputDivider}></View>
@@ -61,10 +93,7 @@ const Register = ({ navigation }) => {
             />
           </View>
         </View>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.popToTop()}
-        >
+        <TouchableOpacity style={styles.button} onPress={handleRegister}>
           <Text style={styles.buttonText}>Create New Account</Text>
         </TouchableOpacity>
       </View>

@@ -1,7 +1,14 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useLayoutEffect } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -12,8 +19,18 @@ import ContactsList from "../components/ContactsList";
 import MenuButtons from "../components/MenuButtons";
 import SearchBar from "../components/SearchBar";
 import { Ionicons } from "@expo/vector-icons";
+import SegmentedControl from "@react-native-segmented-control/segmented-control";
+import ExploreTab from "../components/ExploreTab";
+import AppContext from "../context/AppContext";
 
 const Home = ({ navigation }) => {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const scrollRef = useRef();
+
+  const {
+    user: { user, setUser },
+  } = useContext(AppContext);
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
@@ -40,21 +57,72 @@ const Home = ({ navigation }) => {
     });
   });
 
+  // useEffect(() => {
+  //   if (user) {
+  //     navigation.replace("Login");
+  //   }
+  // }, [user]);
+
+  // const handleModeScroll = (e) => {
+  //   let posX = e.nativeEvent.contentOffset.x;
+  //   console.log(posX);
+  //   if (posX > 300) {
+  //     setSelectedIndex(1);
+  //   } else if (posX < 75) {
+  //     setSelectedIndex(0);
+  //   }
+  // };
+
+  const handleControlChange = (e) => {
+    let index = e.nativeEvent.selectedSegmentIndex;
+    setSelectedIndex(index);
+    if (index === 0) {
+      scrollRef.current.scrollTo({ x: 0, y: 0 });
+    } else {
+      scrollRef.current.scrollToEnd();
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" animated />
+
       <SafeAreaView style={{ height: "100%" }}>
-        {/* Header */}
-        {/* <Header /> */}
+        <View style={styles.tools}>
+          {/* Header */}
+          {/* <Header /> */}
 
-        {/* SearchBar */}
-        <SearchBar />
+          {/* SearchBar */}
+          <SearchBar />
 
-        {/* Menu Buttons*/}
-        <MenuButtons navigation={navigation} />
+          {/* Menu Buttons*/}
+          <MenuButtons navigation={navigation} />
 
+          <View style={styles.controlbar}>
+            <SegmentedControl
+              values={["探索", "聊天室"]}
+              selectedIndex={selectedIndex}
+              appearance={"dark"}
+              onChange={handleControlChange}
+            />
+          </View>
+        </View>
         {/* Contacts List*/}
-        <ContactsList />
+        <View style={{ ...styles.contentbox }}>
+          <ScrollView
+            horizontal
+            decelerationRate={0}
+            snapToInterval={375} //your element width
+            snapToAlignment={"center"}
+            // onScroll={handleModeScroll}
+            scrollEnabled={false}
+            scrollEventThrottle={200}
+            ref={scrollRef}
+          >
+            <ExploreTab />
+            <ContactsList />
+          </ScrollView>
+        </View>
       </SafeAreaView>
     </View>
   );
@@ -65,6 +133,15 @@ export default Home;
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#1c1c1c",
+  },
+  tools: {
     padding: 15,
+    paddingBottom: 0,
+  },
+  controlbar: {
+    marginVertical: 10,
+  },
+  contentbox: {
+    flexDirection: "column",
   },
 });

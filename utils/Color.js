@@ -9,9 +9,10 @@ export default {
   SystemGray2: "#636366",
   SystemGray3: "#48484A",
   SystemGray4: "#3A3A3C",
-  SystemGray4Alpha: "#3A3A3C98",
+  SystemGray4Alpha: "#3A3A3C99",
   SystemGray5: "#2C2C2E",
   SystemGray6: "#1C1C1E",
   SystemBlack: "#000",
   SystemWhite: "#fff",
+  SystemGreen: "#32D74B",
 };

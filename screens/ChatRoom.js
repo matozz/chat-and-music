@@ -6,20 +6,12 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  AppState,
-  Linking,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { AppState, Linking, StyleSheet, TouchableOpacity } from "react-native";
 import { GiftedChat } from "react-native-gifted-chat";
 import { Ionicons } from "@expo/vector-icons";
-import { io } from "socket.io-client";
 import AppContext from "../context/AppContext";
 import "react-native-get-random-values";
-import { v4 as uuidv4 } from "uuid";
+import { socket } from "../sockets";
 
 const parsePatterns = (_linkStyle) => {
   return [
@@ -30,9 +22,6 @@ const parsePatterns = (_linkStyle) => {
     },
   ];
 };
-
-let socket;
-const API_URL = "http://10.22.142.198:3001";
 
 const ChatRoom = ({ navigation, route }) => {
   // const appState = useRef(AppState.currentState);
@@ -85,28 +74,26 @@ const ChatRoom = ({ navigation, route }) => {
   useEffect(() => {
     // if (appStateVisible !== "active") return;
     setIsConnecting(true);
-    socket = io(`${API_URL}`);
-    socket.on("connect", () => {
-      setIsConnecting(false);
-      console.log("[STATUS]: connected");
-    });
 
     socket.emit("join-room", {
       roomName: roomName,
-      userName: user,
+      user: user,
       roomId: roomId,
     });
+
     socket.on("all-users", (users) => {
-      // console.log("Active Users", users);
       setUsers(users);
+      setIsConnecting(false);
     });
 
     socket.on("all-msg", (msg) => {
       handleNewMessage(msg);
+      console.log("update");
     });
 
     socket.on("room-name", (name) => {
       setRoomName(name);
+      console.log(name);
     });
 
     socket.on("room-typing", (status) => {
@@ -114,8 +101,7 @@ const ChatRoom = ({ navigation, route }) => {
     });
 
     return () => {
-      console.log("[STATUS]: disconnect from server");
-      socket.disconnect();
+      console.log(11111111);
     };
   }, []);
 
@@ -156,7 +142,6 @@ const ChatRoom = ({ navigation, route }) => {
 
   const onSend = useCallback((messages = []) => {
     socket.emit("send-msg", { roomId: roomId, msg: messages });
-
     // setMessages((previousMessages) =>
     //   GiftedChat.append(previousMessages, messages)
     // );
@@ -203,8 +188,8 @@ const ChatRoom = ({ navigation, route }) => {
       onInputTextChanged={(msg) => onTyping(msg)}
       onSend={(messages) => onSend(messages)}
       user={{
-        _id: user,
-        name: user,
+        _id: user.uid,
+        name: user.displayName,
       }}
     />
   );

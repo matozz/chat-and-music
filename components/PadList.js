@@ -16,7 +16,7 @@ const PAD_COLOR = {
   FX: "brown",
 };
 
-const PadList = ({ type, time, bpm, status, padItems }) => {
+const PadList = ({ type, bpm, status, padItems, row }) => {
   return (
     <View
       style={{
@@ -33,11 +33,12 @@ const PadList = ({ type, time, bpm, status, padItems }) => {
       {padItems.map((value, index) => (
         <PadItem
           key={index}
+          row={row}
+          col={index + 1}
           type={type}
           color={PAD_COLOR[value.instrument]}
           displayName={value.displayName}
-          time={time}
-          instrument={value.instrument}
+          // instrument={value.instrument}
           bpm={bpm}
           status={status}
           sampleName={value.sampleName}

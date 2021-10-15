@@ -1,23 +1,63 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   TextInput,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  Alert,
+  Keyboard,
 } from "react-native";
+import Loading from "../components/Loading";
+import AppContext from "../context/AppContext";
 import Color from "../utils/Color";
 
 const JoinChat = ({ navigation }) => {
   const [roomId, setRoomId] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const {
+    user: { user, setUser },
+  } = useContext(AppContext);
 
   const joinRoom = () => {
-    navigation.goBack();
-    navigation.navigate("ChatRoom");
+    if (!user) {
+      Alert.prompt(
+        "Username Required",
+        "To start a chat, please enter your username",
+        [
+          {
+            text: "Cancel",
+            onPress: () => {},
+            style: "cancel",
+          },
+          {
+            text: "Confirm",
+            onPress: (text) => {
+              setUser(text);
+            },
+          },
+        ],
+        "plain-text"
+      );
+    } else {
+      setLoading(true);
+      Keyboard.dismiss();
+      const timer = setTimeout(() => {
+        navigation.goBack();
+        navigation.navigate("ChatRoom", {
+          roomId: roomId,
+        });
+        // setLoading(false);
+        clearTimeout(timer);
+      }, 1000);
+    }
   };
 
   return (
     <View style={styles.container}>
+      <Loading show={loading} />
+
       <View style={styles.inputBox}>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Code</Text>

@@ -1,4 +1,10 @@
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -10,10 +16,20 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import ContactsList from "../components/ContactsList";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
+import { db } from "../firebase";
+import AppContext from "../context/AppContext";
+import Loading from "../components/Loading";
 
 const IdeaScreen = ({ navigation }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [myIdeas, setMyIdeas] = useState([]);
+  const [pulbicIdeas, setPublicIdeas] = useState([]);
+  const [loading, setLoading] = useState(false);
   const scrollRef = useRef();
+
+  const {
+    user: { user },
+  } = useContext(AppContext);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -30,6 +46,24 @@ const IdeaScreen = ({ navigation }) => {
     });
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = db
+      .collection("users")
+      .doc(user.uid)
+      .collection("recordings")
+      .orderBy("createTime", "asc")
+      .onSnapshot((snapshot) => {
+        setMyIdeas(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            data: doc.data(),
+          }))
+        );
+      });
+
+    return unsubscribe;
+  }, [user.uid]);
+
   const handleControlChange = (e) => {
     let index = e.nativeEvent.selectedSegmentIndex;
     setSelectedIndex(index);
@@ -40,9 +74,27 @@ const IdeaScreen = ({ navigation }) => {
     }
   };
 
+  const delRecording = (docId) => {
+    setLoading(true);
+    db.collection("users")
+      .doc(user.uid)
+      .collection("recordings")
+      .doc(docId)
+      .delete()
+      .then(() => {
+        setLoading(false);
+        alert("删除成功");
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(true);
+      });
+  };
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={{ height: "100%" }}>
+        <Loading show={loading} />
         <View style={styles.controlbar}>
           <SegmentedControl
             values={["热门", "我的灵感"]}
@@ -61,8 +113,12 @@ const IdeaScreen = ({ navigation }) => {
           scrollEventThrottle={200}
           ref={scrollRef}
         >
-          <ContactsList />
-          <ContactsList />
+          <ContactsList data={{}} type={"publicIdea"} />
+          <ContactsList
+            data={myIdeas}
+            type={"myIdea"}
+            delRecording={delRecording}
+          />
         </ScrollView>
       </SafeAreaView>
     </View>

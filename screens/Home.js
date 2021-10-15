@@ -120,7 +120,7 @@ const Home = ({ navigation }) => {
             ref={scrollRef}
           >
             <ExploreTab />
-            <ContactsList />
+            <ContactsList data={{}} type={"myChat"} />
           </ScrollView>
         </View>
       </SafeAreaView>

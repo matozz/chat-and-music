@@ -141,33 +141,30 @@ const MusicScreen = ({ navigation, route }) => {
           setLoading(false);
           console.log(recording);
           console.log(recording.notes.slice(-1));
-          Alert.alert(
-            "Save Recording?",
-            `Record time: ${Math.floor(
-              recording.notes.slice(-1)[0].timestamp / 1000
-            )}s`,
-            [
-              {
-                text: "Discard",
-                onPress: () => {},
-                style: "destructive",
-              },
-              {
-                text: "Save",
-                onPress: async () => {
-                  db.collection("users")
-                    .doc(user.uid)
-                    .collection("messages")
-                    .add({
-                      ...recording,
-                      createTime:
-                        firebase.firestore.FieldValue.serverTimestamp(),
-                    })
-                    .then((res) => alert("Save Success!"));
-                },
-              },
-            ]
+          let duration = Math.ceil(
+            recording.notes.slice(-1)[0].timestamp / 1000
           );
+          Alert.alert("Save Recording?", `Record time: ${duration}s`, [
+            {
+              text: "Discard",
+              onPress: () => {},
+              style: "destructive",
+            },
+            {
+              text: "Save",
+              onPress: async () => {
+                db.collection("users")
+                  .doc(user.uid)
+                  .collection("recordings")
+                  .add({
+                    ...recording,
+                    createTime: firebase.firestore.FieldValue.serverTimestamp(),
+                    duration: recording.notes.slice(-1)[0].timestamp,
+                  })
+                  .then((res) => alert("Save Success!"));
+              },
+            },
+          ]);
           clearTimeout(timer);
         }, 1000);
       }

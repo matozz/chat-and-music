@@ -7,54 +7,73 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ActionSheetIOS,
+  Alert,
 } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
+import { Ionicons } from "@expo/vector-icons";
+import Color from "../utils/Color";
+import { formatDate, formatDuration } from "../utils/Translator";
 
-const contactMenuButtons = [
-  {
-    id: "0",
-    type: "starred",
-    name: "Starred",
-  },
-  {
-    id: "1",
-    type: "contact",
-    name: "Jessy The",
-    avatar:
-      "https://i0.hdslb.com/bfs/face/d3b2fdf24068c992e28e04f7262ecfa6f6a3cc03.jpg@160w_160h_1c_1s.jpg",
-  },
-  {
-    id: "2",
-    type: "contact",
-    name: "Jessy The",
-    avatar:
-      "https://i0.hdslb.com/bfs/face/d3b2fdf24068c992e28e04f7262ecfa6f6a3cc03.jpg@160w_160h_1c_1s.jpg",
-  },
-];
-
-const ContactsList = () => {
+const ContactsList = ({ data, type, delRecording }) => {
   const [refreshing, setRefreshing] = useState(false);
 
-  const renderRow = ({ item }) => (
-    <TouchableOpacity style={styles.row}>
-      {item.type === "starred" ? (
+  const handleRecordingOptions = (name, id) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        options: ["取消", "发布", "删除"],
+        title: name,
+        destructiveButtonIndex: 2,
+        cancelButtonIndex: 0,
+        userInterfaceStyle: "dark",
+      },
+      (buttonIndex) => {
+        if (buttonIndex === 0) {
+          // cancel action
+        } else if (buttonIndex === 1) {
+        } else if (buttonIndex === 2) {
+          delRecording(id);
+        }
+      }
+    );
+  };
+
+  const renderRow = ({
+    item: {
+      id,
+      data: { createTime, duration },
+    },
+    index,
+  }) => (
+    <TouchableOpacity
+      style={styles.row}
+      onLongPress={() =>
+        handleRecordingOptions(`New Recoding #${index + 1}`, id)
+      }
+    >
+      {type === "myIdea" && (
         <View style={styles.starredIcon}>
-          <AntDesign name="star" size={22} color="#efefef" />
-        </View>
-      ) : (
-        <View style={styles.starredIcon}>
-          <Image source={{ uri: item.avatar }} style={styles.avatarIcon} />
+          <Ionicons name="ios-musical-notes" size={24} color="#efefef" />
         </View>
       )}
 
-      <Text style={styles.text}>{item.name}</Text>
+      <View style={styles.content}>
+        <Text style={styles.title}>New Recoding #{index + 1}</Text>
+        <View style={styles.footer}>
+          <Text style={styles.date}>
+            {formatDate(createTime.toDate(), "yyyy-MM-dd")}
+          </Text>
+          <Text style={styles.desc}>{formatDuration(duration)}</Text>
+        </View>
+      </View>
     </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
       <FlatList
-        data={contactMenuButtons}
+        data={data}
         renderItem={renderRow}
         keyExtractor={(item) => item.id}
         style={{ height: "100%" }}
@@ -75,7 +94,7 @@ export default ContactsList;
 const styles = StyleSheet.create({
   container: {
     width: Dimensions.get("window").width,
-    paddingLeft: 15,
+    paddingHorizontal: 15,
   },
   row: {
     flexDirection: "row",
@@ -91,10 +110,29 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
   },
-  text: {
-    color: "white",
+  content: {
     paddingLeft: 15,
+    flex: 1,
+  },
+  footer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  title: {
+    color: "white",
     fontSize: 17,
+    paddingBottom: 6,
+    fontWeight: "500",
+  },
+  date: {
+    fontSize: 13,
+    color: Color.SystemGray1,
+    fontWeight: "500",
+  },
+  desc: {
+    fontSize: 13,
+    color: Color.SystemGray1,
+    fontWeight: "500",
   },
   avatarIcon: {
     width: 50,

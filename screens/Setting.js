@@ -1,5 +1,11 @@
 import { signOut } from "@firebase/auth";
-import React, { useContext, useLayoutEffect, useState } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   Alert,
   StyleSheet,
@@ -10,11 +16,15 @@ import {
 } from "react-native";
 import Loading from "../components/Loading";
 import AppContext from "../context/AppContext";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 import { socket } from "../sockets";
+import Color from "../utils/Color";
 
 const Setting = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState("");
+
+  const valueRef = useRef();
 
   const {
     user: { user, setUser },
@@ -32,6 +42,34 @@ const Setting = ({ navigation }) => {
       ),
     });
   });
+
+  useEffect(() => {
+    valueRef.current = username;
+  }, [username]);
+
+  useEffect(() => {
+    setUsername(user?.displayName);
+    return () => {
+      let username = valueRef.current;
+      if (auth.currentUser?.uid && auth.currentUser.displayName !== username) {
+        db.collection("users")
+          .doc(auth.currentUser.uid)
+          .update({ displayName: username })
+          .then(() => {
+            auth.currentUser
+              .updateProfile({
+                displayName: username,
+              })
+              .then((res) => {
+                setUser({
+                  ...user,
+                  displayName: username,
+                });
+              });
+          });
+      }
+    };
+  }, []);
 
   const handleLogout = () => {
     Alert.alert("Log Out", "You will no longer to recive the chat messages", [
@@ -51,6 +89,7 @@ const Setting = ({ navigation }) => {
                 id: 1,
               },
             });
+            socket.off("online-user");
             navigation.replace("Login");
           });
         },
@@ -59,26 +98,45 @@ const Setting = ({ navigation }) => {
     ]);
   };
 
+  const handleLogin = () => {
+    setLoading(true);
+    const timer = setTimeout(() => {
+      navigation.replace("Login");
+      clearTimeout(timer);
+    }, 300);
+  };
+
   return (
     <View style={styles.container}>
       <Loading show={loading} />
-      <View style={styles.inputBox}>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Username</Text>
-          <TextInput
-            style={styles.input}
-            // onChangeText={(text) => setUser(text)}
-            value={user?.displayName}
-            autoFocus
-            placeholderTextColor={"#858585"}
-            placeholder="Enter username"
-            keyboardAppearance="dark"
-          />
-        </View>
-      </View>
-      <TouchableOpacity style={styles.button} onPress={handleLogout}>
-        <Text style={styles.buttonText}>Log Out</Text>
-      </TouchableOpacity>
+      {user.uid ? (
+        <>
+          <View style={styles.inputBox}>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Username</Text>
+              <TextInput
+                style={styles.input}
+                onChangeText={(text) => setUsername(text)}
+                value={username}
+                autoFocus
+                placeholderTextColor={"#858585"}
+                placeholder="Enter username"
+                keyboardAppearance="dark"
+              />
+            </View>
+          </View>
+          <TouchableOpacity style={styles.button} onPress={handleLogout}>
+            <Text style={styles.buttonText}>Log Out</Text>
+          </TouchableOpacity>
+        </>
+      ) : (
+        <TouchableOpacity
+          style={{ ...styles.button, backgroundColor: Color.SystemBlue }}
+          onPress={handleLogin}
+        >
+          <Text style={styles.buttonText}>Log In</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };

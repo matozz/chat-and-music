@@ -25,7 +25,15 @@ const Register = ({ navigation }) => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: "Create New Account",
+      // headerTitle: "",
+      headerRight: () => (
+        <TouchableOpacity
+          style={{ paddingLeft: 20 }}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.navButton}>Done</Text>
+        </TouchableOpacity>
+      ),
     });
   }, []);
 
@@ -107,6 +115,11 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#1c1c1c",
     height: "100%",
+  },
+  navButton: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 17,
   },
   title: {
     fontSize: 25,

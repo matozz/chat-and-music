@@ -88,7 +88,6 @@ const ChatRoom = ({ navigation, route }) => {
 
     socket.on("all-msg", (msg) => {
       handleNewMessage(msg);
-      console.log("update");
     });
 
     socket.on("room-name", (name) => {

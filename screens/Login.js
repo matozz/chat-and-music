@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     paddingHorizontal: 20,
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 30,
   },
   inputBox: { backgroundColor: "#303030", borderRadius: 10 },
   inputContainer: {

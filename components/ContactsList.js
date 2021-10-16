@@ -15,10 +15,10 @@ import { Ionicons } from "@expo/vector-icons";
 import Color from "../utils/Color";
 import { formatDate, formatDuration } from "../utils/Translator";
 
-const ContactsList = ({ data, type, delRecording }) => {
+const ContactsList = ({ data, type, delRecording, uploadRecording }) => {
   const [refreshing, setRefreshing] = useState(false);
 
-  const handleRecordingOptions = (name, id) => {
+  const handleRecordingOptions = ({ name, id, index }) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     ActionSheetIOS.showActionSheetWithOptions(
       {
@@ -32,6 +32,7 @@ const ContactsList = ({ data, type, delRecording }) => {
         if (buttonIndex === 0) {
           // cancel action
         } else if (buttonIndex === 1) {
+          uploadRecording(data[index].data);
         } else if (buttonIndex === 2) {
           delRecording(id);
         }
@@ -39,30 +40,42 @@ const ContactsList = ({ data, type, delRecording }) => {
     );
   };
 
-  const renderRow = ({
+  const renderIdeaRow = ({
     item: {
       id,
-      data: { createTime, duration },
+      data: { createTime, duration, pack },
+      userData,
     },
     index,
   }) => (
     <TouchableOpacity
       style={styles.row}
       onLongPress={() =>
-        handleRecordingOptions(`New Recoding #${index + 1}`, id)
+        type === "myIdea" &&
+        handleRecordingOptions({
+          name: `New Recoding #${index + 1}`,
+          id,
+          index,
+        })
       }
     >
-      {type === "myIdea" && (
-        <View style={styles.starredIcon}>
-          <Ionicons name="ios-musical-notes" size={24} color="#efefef" />
-        </View>
-      )}
+      <View style={styles.starredIcon}>
+        <Ionicons name="ios-musical-notes" size={24} color="#efefef" />
+      </View>
 
       <View style={styles.content}>
-        <Text style={styles.title}>New Recoding #{index + 1}</Text>
+        <View style={styles.header}>
+          {type === "myIdea" ? (
+            <Text style={styles.title}>New Recoding #{index + 1}</Text>
+          ) : (
+            <Text style={styles.title}>
+              New Recoding #{index + 1} - {userData.displayName}
+            </Text>
+          )}
+        </View>
         <View style={styles.footer}>
           <Text style={styles.date}>
-            {formatDate(createTime.toDate(), "yyyy-MM-dd")}
+            {formatDate(createTime.toDate(), "MM-dd")} from {pack}
           </Text>
           <Text style={styles.desc}>{formatDuration(duration)}</Text>
         </View>
@@ -70,11 +83,19 @@ const ContactsList = ({ data, type, delRecording }) => {
     </TouchableOpacity>
   );
 
+  const renderChatRow = () => {};
+
+  const renderRow = {
+    myIdea: renderIdeaRow,
+    publicIdea: renderIdeaRow,
+    myChat: renderChatRow,
+  };
+
   return (
     <View style={styles.container}>
       <FlatList
         data={data}
-        renderItem={renderRow}
+        renderItem={renderRow[type]}
         keyExtractor={(item) => item.id}
         style={{ height: "100%" }}
         refreshing={refreshing}

@@ -49,6 +49,7 @@ const MenuButtons = ({ navigation }) => {
     <View style={styles.container}>
       {BUTTONS.map((button) => (
         <TouchableOpacity
+          activeOpacity={0.5}
           style={styles.buttonContainer}
           key={button.label}
           onPress={() => handleMenuEvent(button.nav)}

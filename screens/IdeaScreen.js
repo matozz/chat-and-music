@@ -16,7 +16,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import ContactsList from "../components/ContactsList";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
-import { db } from "../firebase";
+import { db, firebase } from "../firebase";
 import AppContext from "../context/AppContext";
 import Loading from "../components/Loading";
 
@@ -64,6 +64,44 @@ const IdeaScreen = ({ navigation }) => {
     return unsubscribe;
   }, [user.uid]);
 
+  useEffect(() => {
+    setLoading(true);
+    const unsubscribe = db
+      .collection("recordings")
+      .orderBy("uploadTime", "asc")
+      .onSnapshot((snapshot) => {
+        let data = [];
+
+        Promise.all(
+          snapshot.docs.map(async (doc) => {
+            let newItem = {
+              data: doc.data(),
+              id: doc.id,
+            };
+            if (newItem.data.userRef) {
+              await newItem.data.userRef
+                .get()
+                .then((res) => {
+                  newItem["userData"] = res.data();
+                  data.push(newItem);
+                })
+                .catch((err) => console.error(err));
+            }
+          })
+        )
+          .then(() => {
+            setPublicIdeas(data);
+            setLoading(false);
+          })
+          .catch((err) => {
+            console.error(err);
+            setLoading(false);
+          });
+      });
+
+    return unsubscribe;
+  }, []);
+
   const handleControlChange = (e) => {
     let index = e.nativeEvent.selectedSegmentIndex;
     setSelectedIndex(index);
@@ -84,6 +122,24 @@ const IdeaScreen = ({ navigation }) => {
       .then(() => {
         setLoading(false);
         alert("删除成功");
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(true);
+      });
+  };
+
+  const uploadRecording = (recording) => {
+    console.log(recording);
+    setLoading(true);
+    db.collection("recordings")
+      .add({
+        ...recording,
+        uploadTime: firebase.firestore.FieldValue.serverTimestamp(),
+        userRef: db.doc("users/" + firebase.auth().currentUser.uid),
+      })
+      .then(() => {
+        setLoading(false);
       })
       .catch((err) => {
         console.log(err);
@@ -113,11 +169,12 @@ const IdeaScreen = ({ navigation }) => {
           scrollEventThrottle={200}
           ref={scrollRef}
         >
-          <ContactsList data={{}} type={"publicIdea"} />
+          <ContactsList data={pulbicIdeas} type={"publicIdea"} />
           <ContactsList
             data={myIdeas}
             type={"myIdea"}
             delRecording={delRecording}
+            uploadRecording={uploadRecording}
           />
         </ScrollView>
       </SafeAreaView>

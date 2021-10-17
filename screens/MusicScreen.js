@@ -5,18 +5,10 @@ import React, {
   useRef,
   useContext,
 } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  SafeAreaView,
-  Alert,
-} from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import PadList from "../components/PadList";
 import { Modalize } from "react-native-modalize";
-// import { Portal } from "react-native-portalize";
 import MuiscOption from "../components/MuiscOption";
 import MusicActionBar from "../components/MusicActionBar";
 import MusicContext from "../context/MusicContext";
@@ -225,7 +217,6 @@ const MusicScreen = ({ navigation, route }) => {
                 row={index + 1}
                 type={value.type}
                 padItems={value.padItems}
-                // time={time}
                 status={start ? "play" : "stop"}
                 bpm={bpm}
               />

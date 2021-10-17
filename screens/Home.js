@@ -15,13 +15,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import ContactsList from "../components/ContactsList";
+// import ContactsList from "../components/ContactsList";
 // import Header from "../components/Header";
 import MenuButtons from "../components/MenuButtons";
 import SearchBar from "../components/SearchBar";
 import { Ionicons } from "@expo/vector-icons";
 import { socket } from "../sockets";
-import SegmentedControl from "@react-native-segmented-control/segmented-control";
+// import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import ExploreTab from "../components/ExploreTab";
 import AppContext from "../context/AppContext";
 import Color from "../utils/Color";
@@ -46,11 +46,6 @@ const CONNECTION_STATE = (handler) => ({
 });
 
 const Home = ({ navigation }) => {
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  // const [socketState, setSocketState] = useState("connecting");
-  const [databaseState, setDatabaseState] = useState("connecting");
-  const scrollRef = useRef();
-
   const {
     user: { loginState, user },
     connectionState: { socketState, setSocketState },
@@ -100,14 +95,21 @@ const Home = ({ navigation }) => {
 
   const connectSocket = () => {
     console.log(user);
-    if (Object.keys(user).length > 0) {
-      // console.log(user);
+    if (socketState === "failed") {
+      showMessage({
+        message: "Socket 服务连接失败，请检查网络和登录状态",
+        type: "info",
+        icon: "warning",
+        style: {
+          backgroundColor: Color.SystemRed,
+        },
+      });
+    } else if (Object.keys(user).length > 0) {
       socket.emit("go-online", {
         userinfo: user,
       });
       socket.on("online-user", (users) => {
         setSocketState("connected");
-        // setUsersNum(users);
         showMessage({
           message: "Socket 服务连接成功",
           type: "info",
@@ -116,15 +118,6 @@ const Home = ({ navigation }) => {
             backgroundColor: Color.SystemGreen,
           },
         });
-      });
-    } else if (socketState === "failed") {
-      showMessage({
-        message: "Socket 服务连接失败，请检查网络和登录状态",
-        type: "info",
-        icon: "warning",
-        style: {
-          backgroundColor: Color.SystemRed,
-        },
       });
     } else {
       showMessage({
@@ -159,54 +152,18 @@ const Home = ({ navigation }) => {
     }
   }, [loginState]);
 
-  // const handleControlChange = (e) => {
-  //   let index = e.nativeEvent.selectedSegmentIndex;
-  //   setSelectedIndex(index);
-  //   if (index === 0) {
-  //     scrollRef.current.scrollTo({ x: 0, y: 0 });
-  //   } else {
-  //     scrollRef.current.scrollToEnd();
-  //   }
-  // };
-
   return (
     <View style={styles.container}>
       <StatusBar style="light" animated />
-
-      {/* <SafeAreaView style={{ height: "100%" }}> */}
       <ScrollView>
         <View style={styles.tools}>
           <SearchBar />
-
           <MenuButtons navigation={navigation} />
-
-          {/* <View style={styles.controlbar}>
-            <SegmentedControl
-              values={["探索", "聊天室"]}
-              selectedIndex={selectedIndex}
-              appearance={"dark"}
-              onChange={handleControlChange}
-            />
-          </View> */}
         </View>
         <View style={{ ...styles.contentbox }}>
           <ExploreTab navigation={navigation} />
-          {/* <ScrollView
-            horizontal
-            decelerationRate={0}
-            snapToInterval={375} //your element width
-            snapToAlignment={"center"}
-            // onScroll={handleModeScroll}
-            scrollEnabled={false}
-            scrollEventThrottle={200}
-            ref={scrollRef}
-          >
-            <ExploreTab />
-            <ContactsList data={{}} type={"myChat"} />
-          </ScrollView> */}
         </View>
       </ScrollView>
-      {/* </SafeAreaView> */}
     </View>
   );
 };

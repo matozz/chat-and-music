@@ -26,12 +26,7 @@ export default function App() {
     setSocketState: setSocketState,
   };
 
-  // setInterval(() => {
-  //   console.log(auth.currentUser);
-  // }, 1000);
-
   useEffect(() => {
-    // console.log(curUser);
     auth.onAuthStateChanged((user) => {
       console.log(user);
       if (user) {
@@ -79,7 +74,7 @@ export default function App() {
           });
         }
         clearTimeout(timer);
-      }, 3000);
+      }, 5000);
     }
   }, [socketState]);
 

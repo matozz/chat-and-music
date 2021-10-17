@@ -38,7 +38,6 @@ const PadList = ({ type, bpm, status, padItems, row }) => {
           type={type}
           color={PAD_COLOR[value.instrument]}
           displayName={value.displayName}
-          // instrument={value.instrument}
           bpm={bpm}
           status={status}
           sampleName={value.sampleName}

@@ -7,10 +7,13 @@ import {
   View,
   Alert,
   Keyboard,
+  ScrollView,
 } from "react-native";
 import Loading from "../components/Loading";
 import AppContext from "../context/AppContext";
 import Color from "../utils/Color";
+import { MOCK_CHATS } from "../utils/MockData";
+import { AntDesign } from "@expo/vector-icons";
 
 const JoinChat = ({ navigation }) => {
   const [roomId, setRoomId] = useState("");
@@ -19,6 +22,23 @@ const JoinChat = ({ navigation }) => {
   const {
     user: { user, setUser },
   } = useContext(AppContext);
+
+  const renderPresetRow = ({ id, name, users }, index) => (
+    <TouchableOpacity
+      key={id}
+      style={styles.chat}
+      activeOpacity={0.5}
+      onPress={() => {}}
+    >
+      <View style={styles.chatInfo}>
+        <Text style={styles.chatName}>{name}</Text>
+        <Text style={styles.chatUser}> ({users.length})</Text>
+      </View>
+      <View style={styles.joinIcon}>
+        <AntDesign name="arrowright" size={24} color={Color.SystemWhite2} />
+      </View>
+    </TouchableOpacity>
+  );
 
   const joinRoom = () => {
     if (!user) {
@@ -58,23 +78,34 @@ const JoinChat = ({ navigation }) => {
     <View style={styles.container}>
       <Loading show={loading} />
 
-      <View style={styles.inputBox}>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Code</Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={(text) => setRoomId(text)}
-            value={roomId}
-            autoFocus
-            placeholderTextColor={"#858585"}
-            placeholder="请输入房间号"
-            keyboardAppearance="dark"
-          />
+      <ScrollView>
+        <View style={styles.inputBox}>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Code</Text>
+            <TextInput
+              style={styles.input}
+              onChangeText={(text) => setRoomId(text)}
+              value={roomId}
+              autoFocus
+              placeholderTextColor={"#858585"}
+              placeholder="请输入房间号"
+              keyboardAppearance="dark"
+            />
+          </View>
         </View>
-      </View>
-      <TouchableOpacity style={styles.button} onPress={joinRoom}>
-        <Text style={styles.buttonText}>加入</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={joinRoom}
+          activeOpacity={0.5}
+        >
+          <Text style={styles.buttonText}>加入</Text>
+        </TouchableOpacity>
+
+        <View style={{ ...styles.section, marginTop: 0 }}>
+          <Text style={styles.title}>可加入房间</Text>
+          <View style={styles.chatList}>{MOCK_CHATS.map(renderPresetRow)}</View>
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -86,7 +117,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#1c1c1c",
     height: "100%",
     paddingTop: 10,
-    paddingHorizontal: 12,
+    paddingHorizontal: 15,
   },
   inputBox: { backgroundColor: "#303030", borderRadius: 10 },
   inputContainer: {
@@ -125,5 +156,49 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "500",
     textAlign: "center",
+  },
+  section: {
+    paddingVertical: 20,
+    paddingHorizontal: 4,
+  },
+  title: {
+    fontSize: 17,
+    // marginLeft: 15,
+    color: Color.SystemWhite2,
+    fontWeight: "bold",
+  },
+  chatList: {
+    paddingVertical: 20,
+  },
+  chat: {
+    height: 70,
+    width: "100%",
+    backgroundColor: Color.SystemGray5,
+    marginBottom: 10,
+    borderRadius: 12,
+    padding: 16,
+    // paddingRight: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  chatInfo: {
+    flexDirection: "row",
+  },
+  chatName: {
+    color: Color.SystemWhite2,
+    fontWeight: "700",
+    fontSize: 15,
+  },
+  chatUser: {
+    color: Color.SystemWhite2,
+    fontWeight: "500",
+  },
+  joinIcon: {
+    height: 38,
+    width: 38,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 100,
+    backgroundColor: Color.SystemGray4,
   },
 });

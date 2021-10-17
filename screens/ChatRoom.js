@@ -92,7 +92,7 @@ const ChatRoom = ({ navigation, route }) => {
 
     socket.on("room-name", (name) => {
       setRoomName(name);
-      console.log(name);
+      // console.log(name);
     });
 
     socket.on("room-typing", (status) => {
@@ -101,6 +101,10 @@ const ChatRoom = ({ navigation, route }) => {
 
     return () => {
       console.log(11111111);
+      socket.off("all-users");
+      socket.off("all-msg");
+      socket.off("room-name");
+      socket.off("room-typing");
     };
   }, []);
 

@@ -158,11 +158,6 @@ const PadItem = ({
   async function playSound() {
     console.log("Playing Sound");
 
-    // console.log(displayName, row, col, isRecording);
-    // if (isRecording) {
-    //   handleRecord({ row: row, col: col, active: true });
-    // }
-
     await sound1.playAsync();
     sound1.setProgressUpdateIntervalAsync(100);
   }

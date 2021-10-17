@@ -1,7 +1,8 @@
-import React from "react";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import React, { useContext } from "react";
+import { StyleSheet, Text, View, TouchableOpacity, Alert } from "react-native";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Color from "../utils/Color";
+import AppContext from "../context/AppContext";
 
 const BUTTONS = [
   {
@@ -35,13 +36,23 @@ const BUTTONS = [
 ];
 
 const MenuButtons = ({ navigation }) => {
-  const handleMenuEvent = (name) => {
+  const {
+    connectionState: { socketState, setSocketState },
+  } = useContext(AppContext);
+
+  const handleNavigation = (name) => {
     if (name === "Music") {
       navigation.navigate(name, {
         entry: "自由创作",
       });
-    } else {
+    } else if (name === "Idea") {
       navigation.navigate(name);
+    } else {
+      if (socketState != "connected") {
+        Alert.alert("操作失败", "请检查 Socket 连接状态");
+      } else {
+        navigation.navigate(name);
+      }
     }
   };
 
@@ -52,7 +63,7 @@ const MenuButtons = ({ navigation }) => {
           activeOpacity={0.5}
           style={styles.buttonContainer}
           key={button.label}
-          onPress={() => handleMenuEvent(button.nav)}
+          onPress={() => handleNavigation(button.nav)}
         >
           <View style={{ ...styles.icon, backgroundColor: button.color }}>
             {button.icon}

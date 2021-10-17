@@ -1,6 +1,9 @@
 export const PACKS = [
   {
-    name: "The ChainSmokers",
+    id: "0",
+    name: "Horizons",
+    genre: "Electronica",
+    source: require("../assets/img/TCS.jpg"),
     padLists: [
       {
         type: "loop",
@@ -250,7 +253,11 @@ export const PACKS = [
     ],
   },
   {
+    id: "1",
     name: "Jay Chou",
+    genre: "Pop",
+    source: require("../assets/img/TCS.jpg"),
+
     padLists: [
       {
         type: "loop",
@@ -500,7 +507,11 @@ export const PACKS = [
     ],
   },
   {
-    name: "Trap",
+    id: "2",
+    name: "Neo Soul",
+    genre: "Trap",
+    source: require("../assets/img/TCS.jpg"),
+
     padLists: [
       {
         type: "loop",
@@ -750,7 +761,10 @@ export const PACKS = [
     ],
   },
   {
-    name: "Tropical House",
+    id: "3",
+    name: "Ambient Skies",
+    genre: "Experimental",
+    source: require("../assets/img/TCS.jpg"),
     padLists: [
       {
         type: "loop",
@@ -998,5 +1012,48 @@ export const PACKS = [
         ],
       },
     ],
+  },
+];
+
+export const PRESETS = [
+  {
+    id: "0",
+    name: "Horizons",
+    packIndex: 0,
+    title: "Alternative",
+    source: require("../assets/img/TCS.jpg"),
+    color: "#6d1ca6",
+  },
+  {
+    id: "1",
+    name: "Neo Soul",
+    packIndex: 2,
+    title: "To The Sky",
+    source: require("../assets/img/TCS.jpg"),
+    color: "#9b2542",
+  },
+  {
+    id: "2",
+    name: "Horizons",
+    packIndex: 0,
+    title: "Closer",
+    source: require("../assets/img/TCS.jpg"),
+    color: "#aa7e14",
+  },
+  {
+    id: "3",
+    name: "Jay Chou",
+    packIndex: 1,
+    title: "QingTian",
+    source: require("../assets/img/TCS.jpg"),
+    color: "#102ba7",
+  },
+  {
+    id: "4",
+    name: "Jay Chou",
+    packIndex: 1,
+    title: "Easy Love",
+    source: require("../assets/img/TCS.jpg"),
+    color: "#9b2542",
   },
 ];

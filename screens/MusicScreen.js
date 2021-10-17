@@ -24,29 +24,13 @@ import { PACKS } from "../utils/MusicPacks";
 import Loading from "../components/Loading";
 import { db, firebase } from "../firebase";
 import AppContext from "../context/AppContext";
-
-function useInterval(callback, delay) {
-  const savedCallback = useRef();
-
-  // Remember the latest callback.
-  useEffect(() => {
-    savedCallback.current = callback;
-  }, [callback]);
-
-  // Set up the interval.
-  useEffect(() => {
-    let id = setInterval(() => {
-      savedCallback.current();
-    }, delay - 9);
-    return () => clearInterval(id);
-  }, [delay]);
-}
+import { useInterval } from "../hooks/useInterval";
 
 const MusicScreen = ({ navigation, route }) => {
   const [time, setTime] = useState(1);
   const [bpm, setBpm] = useState(105);
   const [selectedBpm, setSelectedBpm] = useState(105);
-  const [packIndex, setPackIndex] = useState(0);
+  const [packIndex, setPackIndex] = useState(route.params.packIndex || 0);
   const [start, setStart] = useState(false);
   const [mode, setMode] = useState("");
   const [isRecording, setIsRecording] = useState(false);
@@ -60,7 +44,7 @@ const MusicScreen = ({ navigation, route }) => {
   const [loading, setLoading] = useState(false);
   const modalizeRef = useRef(null);
 
-  const { entry } = route.params;
+  const { entry, type } = route.params;
 
   const {
     user: { user },
@@ -107,7 +91,7 @@ const MusicScreen = ({ navigation, route }) => {
         </View>
       ),
     });
-  }, [navigation, start]);
+  }, [navigation, packIndex]);
 
   useInterval(() => {
     if (start) {
@@ -115,7 +99,6 @@ const MusicScreen = ({ navigation, route }) => {
         setTime(1);
         return;
       }
-
       setTime(time + 1);
     }
   }, (60 / bpm) * 1000);
@@ -227,20 +210,14 @@ const MusicScreen = ({ navigation, route }) => {
           style={{
             height: "100%",
             backgroundColor: "#202020",
-            paddingTop: 20,
+            paddingTop: 15,
           }}
         >
-          <Text
-            style={{
-              fontSize: 15,
-              fontWeight: "500",
-              color: "white",
-              textAlign: "center",
-              marginBottom: 10,
-            }}
-          >
-            {`当前素材包: ${PACKS[packIndex].name}        速度: ${bpm}`}
-          </Text>
+          <View style={styles.infobox}>
+            <Text style={styles.info}>当前素材包: {PACKS[packIndex].name}</Text>
+            <Text style={styles.info}>速度: {bpm}</Text>
+            <Text style={styles.info}>节拍: {((time - 1) % 4) + 1}</Text>
+          </View>
           {typeof PACKS[packIndex].padLists != "undefined" &&
             PACKS[packIndex]?.padLists.map((value, index) => (
               <PadList
@@ -253,16 +230,19 @@ const MusicScreen = ({ navigation, route }) => {
                 bpm={bpm}
               />
             ))}
-          <MusicActionBar
-            setStart={setStart}
-            start={start}
-            setMode={setMode}
-            mode={mode}
-            setIsRecording={setIsRecording}
-            isRecording={isRecording}
-            setEffects={setEffects}
-            effects={effects}
-          />
+          {type !== "preset" && (
+            <MusicActionBar
+              setStart={setStart}
+              start={start}
+              setMode={setMode}
+              mode={mode}
+              setIsRecording={setIsRecording}
+              isRecording={isRecording}
+              setEffects={setEffects}
+              effects={effects}
+              setTime={setTime}
+            />
+          )}
         </View>
       </View>
     </MusicContext.Provider>
@@ -271,4 +251,12 @@ const MusicScreen = ({ navigation, route }) => {
 
 export default MusicScreen;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  infobox: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 30,
+    marginBottom: 10,
+  },
+  info: { fontSize: 15, fontWeight: "500", color: "white", minWidth: 50 },
+});

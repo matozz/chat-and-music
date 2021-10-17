@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import Color from "../utils/Color";
+import { PACKS } from "../utils/MusicPacks";
 
 let allBpm = [];
 for (let i = 0; i < 120; i++) {
@@ -11,12 +12,12 @@ for (let i = 0; i < 120; i++) {
 const MuiscOption = ({ bpm, setSelectedBpm, packIndex, setPackIndex }) => {
   const [bpm1, setBpm1] = useState(bpm);
 
-  const PACKS = [
-    { title: "The ChainSmokers" },
-    { title: "Jay Chou" },
-    { title: "Trap" },
-    { title: "Tropical House" },
-  ];
+  // const PACKS = [
+  //   { title: "The ChainSmokers" },
+  //   { title: "Jay Chou" },
+  //   { title: "Trap" },
+  //   { title: "Tropical House" },
+  // ];
 
   return (
     <View style={{ marginBottom: 20 }}>
@@ -81,7 +82,7 @@ const MuiscOption = ({ bpm, setSelectedBpm, packIndex, setPackIndex }) => {
             onPress={() => setPackIndex(index)}
           >
             <Text style={{ color: "white", fontWeight: "bold" }}>
-              {value.title}
+              {value.name}
             </Text>
           </TouchableOpacity>
         ))}

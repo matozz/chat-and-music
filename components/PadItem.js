@@ -265,7 +265,7 @@ const PadItem = ({
         }}
         style={{
           alignItems: "center",
-          height: 72,
+          height: 70,
           justifyContent: "center",
           backgroundColor: playing ? color : "transparent",
           position: "relative",

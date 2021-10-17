@@ -47,12 +47,13 @@ const CONNECTION_STATE = (handler) => ({
 
 const Home = ({ navigation }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [socketState, setSocketState] = useState("connecting");
+  // const [socketState, setSocketState] = useState("connecting");
   const [databaseState, setDatabaseState] = useState("connecting");
   const scrollRef = useRef();
 
   const {
     user: { loginState, user },
+    connectionState: { socketState, setSocketState },
   } = useContext(AppContext);
 
   useLayoutEffect(() => {
@@ -116,16 +117,16 @@ const Home = ({ navigation }) => {
           },
         });
       });
+    } else if (socketState === "failed") {
+      showMessage({
+        message: "Socket 服务连接失败，请检查网络和登录状态",
+        type: "info",
+        icon: "warning",
+        style: {
+          backgroundColor: Color.SystemRed,
+        },
+      });
     } else {
-      setSocketState("connecting");
-      // showMessage({
-      //   message: "Socket 服务连接失败，请检查是否登录",
-      //   type: "info",
-      //   icon: "warning",
-      //   style: {
-      //     backgroundColor: Color.SystemRed,
-      //   },
-      // });
       showMessage({
         message: "Socket 服务连接中...",
         type: "info",
@@ -189,7 +190,7 @@ const Home = ({ navigation }) => {
           </View> */}
         </View>
         <View style={{ ...styles.contentbox }}>
-          <ExploreTab />
+          <ExploreTab navigation={navigation} />
           {/* <ScrollView
             horizontal
             decelerationRate={0}

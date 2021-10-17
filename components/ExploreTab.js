@@ -12,56 +12,9 @@ import {
 import AppContext from "../context/AppContext";
 import { socket } from "../sockets";
 import Color from "../utils/Color";
+import { PACKS, PRESETS } from "../utils/MusicPacks";
 
-const data = [
-  {
-    id: "0",
-    title: "Horizons",
-    genre: "Electronica",
-    source: require("../assets/img/TCS.jpg"),
-  },
-  {
-    id: "1",
-    title: "Jay Chou",
-    genre: "Pop",
-    source: require("../assets/img/TCS.jpg"),
-  },
-  {
-    id: "2",
-    title: "Neo Soul",
-    genre: "Trap",
-    source: require("../assets/img/TCS.jpg"),
-  },
-];
-
-const data1 = [
-  {
-    id: "0",
-    title: "The ChainSmokers",
-    source: require("../assets/img/TCS.jpg"),
-    color: "#6d1ca6",
-  },
-  {
-    id: "1",
-    title: "The ChainSmokers",
-    source: require("../assets/img/TCS.jpg"),
-    color: "#9b2542",
-  },
-  {
-    id: "2",
-    title: "The ChainSmokers",
-    source: require("../assets/img/TCS.jpg"),
-    color: "#aa7e14",
-  },
-  {
-    id: "3",
-    title: "The ChainSmokers",
-    source: require("../assets/img/TCS.jpg"),
-    color: "#102ba7",
-  },
-];
-
-const ExploreTab = () => {
+const ExploreTab = ({ navigation }) => {
   const [connection, setConnection] = useState(false);
   const [usersNum, setUsersNum] = useState(0);
 
@@ -83,27 +36,40 @@ const ExploreTab = () => {
   //   }
   // }, [user]);
 
-  const renderPackItem = ({ item: { source, title, genre }, index }) => (
+  const handleNavigate = (type, entry, packIndex) => {
+    navigation.navigate("Music", {
+      type,
+      packIndex,
+      entry,
+    });
+  };
+
+  const renderPackItem = ({ item: { source, name, genre }, index }) => (
     <TouchableOpacity
       style={{ ...styles.pack, marginLeft: index === 0 ? 10 : 0 }}
       activeOpacity={0.5}
+      onPress={() => handleNavigate("pack", "自由模式", index)}
     >
       <Image source={source} style={styles.cover} />
-      <Text style={styles.packTitle}>{title}</Text>
+      <Text style={styles.packTitle}>{name}</Text>
       <Text style={styles.packGenre}>{genre}</Text>
     </TouchableOpacity>
   );
 
-  const renderPresetRow = ({ id, source, color }) => (
+  const renderPresetRow = (
+    { id, source, color, title, name, packIndex },
+    index
+  ) => (
     <TouchableOpacity
       key={id}
       style={{ ...styles.preset, backgroundColor: color }}
       activeOpacity={0.5}
+      onPress={() => handleNavigate("preset", title, packIndex)}
     >
       {/* <Image source={source} style={styles.cover} /> */}
       <View>
-        <Text style={styles.presetTitle}>Alternative</Text>
-        <Text style={styles.presetPack}>- The ChainSmokers</Text>
+        <Text style={styles.presetTitle}>{title}</Text>
+        <Text style={styles.presetPack}>- {name}</Text>
       </View>
       {/* <View style={styles.presetCover}> */}
       <View
@@ -144,7 +110,7 @@ const ExploreTab = () => {
       <View style={styles.section}>
         <Text style={styles.title}>最新素材包</Text>
         <FlatList
-          data={data}
+          data={PACKS}
           horizontal
           renderItem={renderPackItem}
           keyExtractor={(item) => item.id}
@@ -153,7 +119,7 @@ const ExploreTab = () => {
       </View>
       <View style={{ ...styles.section, marginTop: 0 }}>
         <Text style={styles.title}>热门预制</Text>
-        <View style={styles.presetList}>{data1.map(renderPresetRow)}</View>
+        <View style={styles.presetList}>{PRESETS.map(renderPresetRow)}</View>
       </View>
     </View>
   );
@@ -189,7 +155,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   packTitle: {
-    color: Color.SystemWhite,
+    color: Color.SystemWhite2,
     width: 120,
     textAlign: "center",
     fontWeight: "bold",
@@ -207,15 +173,15 @@ const styles = StyleSheet.create({
     paddingLeft: 5,
   },
   title: {
-    fontSize: 15,
+    fontSize: 17,
     marginLeft: 15,
-    color: Color.SystemWhite,
+    color: Color.SystemWhite2,
     fontWeight: "bold",
   },
   cover: {
     width: 120,
     height: 120,
-    borderRadius: 16,
+    borderRadius: 12,
   },
   presetList: {
     marginHorizontal: 15,
@@ -224,20 +190,21 @@ const styles = StyleSheet.create({
   preset: {
     height: 75,
     width: "100%",
-    backgroundColor: Color.SystemWhite,
-    marginBottom: 15,
-    borderRadius: 16,
+    backgroundColor: Color.SystemWhite2,
+    marginBottom: 10,
+    borderRadius: 12,
     padding: 16,
+    paddingRight: 20,
     flexDirection: "row",
     justifyContent: "space-between",
   },
   presetTitle: {
-    color: Color.SystemWhite,
+    color: Color.SystemWhite2,
     fontWeight: "700",
+    fontSize: 15,
   },
   presetPack: {
-    color: Color.SystemWhite,
-    paddingTop: 2,
+    color: Color.SystemWhite2,
   },
   presetCover: {
     width: 45,

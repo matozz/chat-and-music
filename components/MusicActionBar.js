@@ -18,12 +18,22 @@ const MusicActionBar = ({
   setIsRecording,
   effect,
   setEffects,
+  setTime,
 }) => {
   const handleModeChange = (v) => {
     if (!mode || mode !== v) {
       setMode(v);
     } else {
       setMode("");
+    }
+  };
+
+  const handleStartStop = () => {
+    if (start) {
+      setStart(false);
+      setTime(1);
+    } else {
+      setStart(true);
     }
   };
 
@@ -42,7 +52,7 @@ const MusicActionBar = ({
           color={isRecording ? Color.SystemRed : "white"}
         />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.icon} onPress={() => setStart(!start)}>
+      <TouchableOpacity style={styles.icon} onPress={handleStartStop}>
         {start ? (
           <Ionicons name="stop" size={26} color={Color.SystemRed} />
         ) : (

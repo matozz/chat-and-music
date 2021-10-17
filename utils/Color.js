@@ -14,5 +14,6 @@ export default {
   SystemGray6: "#1C1C1E",
   SystemBlack: "#000",
   SystemWhite: "#fff",
+  SystemWhite2: "#d9d9d9",
   SystemGreen: "#32D74B",
 };

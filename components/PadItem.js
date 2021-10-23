@@ -9,116 +9,11 @@ import {
 import ProgressLabel from "react-progress-label";
 import { Audio } from "expo-av";
 import MusicContext from "../context/MusicContext";
-
-const SOUND_SAMPLES = {
-  Drum1T: {
-    uri: require("../Samples/ThisF/Drum1-4.mp3"),
-  },
-  HiHat1T: {
-    uri: require("../Samples/ThisF/HH1-32.mp3"),
-  },
-  Bass1T: {
-    uri: require("../Samples/ThisF/Bass1-16.mp3"),
-  },
-  Chord1T: {
-    uri: require("../Samples/ThisF/Chord1-16.mp3"),
-  },
-  Guitar1T: {
-    uri: require("../Samples/ThisF/Guitar1-16.mp3"),
-  },
-  Guitar2T: {
-    uri: require("../Samples/ThisF/Guitar2-8.mp3"),
-  },
-  Vocal1T: {
-    uri: require("../Samples/ThisF/Vocal1-16.mp3"),
-  },
-  Violin1T: {
-    uri: require("../Samples/ThisF/Violin1-8.mp3"),
-  },
-  Piano1T: {
-    uri: require("../Samples/ThisF/Piano1-8.mp3"),
-  },
-  Drum1H: {
-    uri: require("../Samples/Hope/Drum1-4.mp3"),
-  },
-  Bass1H: {
-    uri: require("../Samples/Hope/Bass1-8.mp3"),
-  },
-  Melody1H: {
-    uri: require("../Samples/Hope/Melody1-16.mp3"),
-  },
-  Siren1H: {
-    uri: require("../Samples/Hope/Siren1-4.mp3"),
-  },
-  Drum1R: {
-    uri: require("../Samples/Roses/Drum1-8.mp3"),
-  },
-  Synth1R: {
-    uri: require("../Samples/Roses/Synth1-8.mp3"),
-  },
-  Chord2R: {
-    uri: require("../Samples/Roses/Chord2-16.mp3"),
-  },
-  Chord1R: {
-    uri: require("../Samples/Roses/Chord1-16.mp3"),
-  },
-  Vocal1R: {
-    uri: require("../Samples/Roses/Vocal1-16.mp3"),
-  },
-  Woo1R: {
-    uri: require("../Samples/Roses/Woo-4.mp3"),
-  },
-  Woo2R: {
-    uri: require("../Samples/Roses/Woo2-2.mp3"),
-  },
-  Drum1C: {
-    uri: require("../Samples/CYM/Drum1-8.mp3"),
-  },
-  HiHat1C: {
-    uri: require("../Samples/CYM/HiHat1-8.mp3"),
-  },
-  Bass1C: {
-    uri: require("../Samples/CYM/Bass1-32.mp3"),
-  },
-  Synth1C: {
-    uri: require("../Samples/CYM/Synth1-8.mp3"),
-  },
-  Guitar1C: {
-    uri: require("../Samples/CYM/Guitar1-16.mp3"),
-  },
-  Guitar2C: {
-    uri: require("../Samples/CYM/Guitar2-16.mp3"),
-  },
-  Piano1C: {
-    uri: require("../Samples/CYM/Piano1-16.mp3"),
-  },
-  Drum1L: {
-    uri: require("../Samples/Closer/Drum1-16.mp3"),
-  },
-  Bass1L: {
-    uri: require("../Samples/Closer/Bass1-8.mp3"),
-  },
-  Chord1L: {
-    uri: require("../Samples/Closer/Chord1-8.mp3"),
-  },
-  HiHat1L: {
-    uri: require("../Samples/Closer/HiHat1-8.mp3"),
-  },
-  Synth1L: {
-    uri: require("../Samples/Closer/Synth1-16.mp3"),
-  },
-  Guitar1L: {
-    uri: require("../Samples/Closer/Guitar1-4.mp3"),
-  },
-  Piano1L: {
-    uri: require("../Samples/Closer/Piano1-8.mp3"),
-  },
-};
+import { PLACEHOLDER_LOOP_GAPS, SOUND_SAMPLES } from "../utils/SampleData";
 
 const PadItem = ({
   type,
   color,
-  instrument,
   steps,
   bpm,
   sampleName,
@@ -242,76 +137,45 @@ const PadItem = ({
     }
   }, [time, status]);
 
+  const handlePressPad = () => {
+    if (type != "shot") {
+      if (isRecording) {
+        handleRecord({ row: row, col: col, active: !ready });
+      }
+      setReady(!ready);
+    } else {
+      if (status == "play") {
+        setPlaying(true);
+        playSound();
+      }
+    }
+  };
+
   return (
-    <View style={{ flex: 1, borderRightWidth: 1 }}>
+    <View style={styles.container}>
       <TouchableOpacity
-        onPress={() => {
-          if (type != "shot") {
-            if (isRecording) {
-              handleRecord({ row: row, col: col, active: !ready });
-            }
-            setReady(!ready);
-          } else {
-            if (status == "play") {
-              setPlaying(true);
-              playSound();
-            }
-          }
-        }}
+        onPress={handlePressPad}
         style={{
-          alignItems: "center",
-          height: 70,
-          justifyContent: "center",
+          ...styles.pad,
           backgroundColor: playing ? color : "transparent",
-          position: "relative",
         }}
       >
-        {loading && (
-          <ActivityIndicator
-            size="small"
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 9,
-              backgroundColor: "rgba(1,1,1,0.4)",
-            }}
-          />
-        )}
+        {loading && <ActivityIndicator size="small" style={styles.loader} />}
 
         {type === "loop" && (
           <View style={{ alignItems: "center" }}>
             <View
               style={{
+                ...styles.loopOut,
                 backgroundColor: playing ? "#252525" : color,
-                height: 38,
-                width: 38,
-                borderRadius: "100%",
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: 2,
               }}
             >
               <View
                 style={{
-                  height: 30,
-                  width: 30,
+                  ...styles.looperIn,
                   backgroundColor: playing ? color : "#252525",
-                  borderRadius: "100%",
-                  justifyContent: "center",
-                  alignItems: "center",
                 }}
               >
-                {/* <Text
-                style={{
-                  color: playing ? "#252525" : color,
-                  fontWeight: "bold",
-                }}
-              >
-                {time}
-              </Text> */}
                 {playing && (
                   <ProgressLabel
                     size={38}
@@ -330,78 +194,18 @@ const PadItem = ({
                     ]}
                   />
                 )}
-                {steps == 2 && (
-                  <>
-                    <View
-                      style={{
-                        position: "absolute",
-                        backgroundColor: playing ? color : "#252525",
-                        width: 5,
-                        height: 40,
-                      }}
-                    />
-                  </>
-                )}
-                {steps == 4 && (
-                  <>
-                    <View
-                      style={{
-                        position: "absolute",
-                        backgroundColor: playing ? color : "#252525",
-                        width: 5,
-                        height: 40,
-                      }}
-                    />
-                    <View
-                      style={{
-                        position: "absolute",
-                        backgroundColor: playing ? color : "#252525",
-                        transform: [{ rotate: "90deg" }],
-                        width: 5,
-                        height: 40,
-                      }}
-                    />
-                  </>
-                )}
-                {steps == 8 && (
-                  <>
-                    <View
-                      style={{
-                        position: "absolute",
-                        backgroundColor: playing ? color : "#252525",
-                        width: 5,
-                        height: 40,
-                      }}
-                    />
-                    <View
-                      style={{
-                        position: "absolute",
-                        backgroundColor: playing ? color : "#252525",
-                        transform: [{ rotate: "45deg" }],
-                        width: 5,
-                        height: 40,
-                      }}
-                    />
-                    <View
-                      style={{
-                        position: "absolute",
-                        backgroundColor: playing ? color : "#252525",
-                        transform: [{ rotate: "90deg" }],
-                        width: 5,
-                        height: 40,
-                      }}
-                    />
-                    <View
-                      style={{
-                        position: "absolute",
-                        backgroundColor: playing ? color : "#252525",
-                        transform: [{ rotate: "135deg" }],
-                        width: 5,
-                        height: 40,
-                      }}
-                    />
-                  </>
-                )}
+                {PLACEHOLDER_LOOP_GAPS[step]?.map((deg, index) => (
+                  <View
+                    key={index}
+                    style={{
+                      position: "absolute",
+                      backgroundColor: playing ? color : "#252525",
+                      transform: [{ rotate: deg }],
+                      width: step == 16 ? 2 : 5,
+                      height: 40,
+                    }}
+                  />
+                ))}
               </View>
             </View>
           </View>
@@ -409,26 +213,10 @@ const PadItem = ({
         {type === "shot" && (
           <View
             style={{
-              width: 50,
+              ...styles.shot,
               backgroundColor: playing ? "#252525" : color,
-              height: 4,
-              marginHorizontal: 7.5,
-              marginTop: 10,
-              alignItems: "center",
-              justifyContent: "center",
-              // paddingHorizontal: 2,
             }}
           >
-            {/* <Text
-            style={{
-              position: "absolute",
-              top: -20,
-              color: playing ? "#252525" : color,
-              fontWeight: "bold",
-            }}
-          >
-            {((60 / step) * (currentStep - 1)) % 60}
-          </Text> */}
             {playing && (
               <View
                 style={[
@@ -451,10 +239,8 @@ const PadItem = ({
               <>
                 <View
                   style={{
-                    position: "absolute",
+                    ...styles.shotGap,
                     backgroundColor: playing ? color : "#252525",
-                    width: 5,
-                    height: 4,
                   }}
                 />
               </>
@@ -463,28 +249,22 @@ const PadItem = ({
               <>
                 <View
                   style={{
-                    position: "absolute",
+                    ...styles.shotGap,
                     left: 9,
                     backgroundColor: playing ? color : "#252525",
-                    width: 5,
-                    height: 4,
                   }}
                 />
                 <View
                   style={{
-                    position: "absolute",
+                    ...styles.shotGap,
                     backgroundColor: playing ? color : "#252525",
-                    width: 5,
-                    height: 4,
                   }}
                 />
                 <View
                   style={{
-                    position: "absolute",
+                    ...styles.shotGap,
                     right: 9,
                     backgroundColor: playing ? color : "#252525",
-                    width: 5,
-                    height: 4,
                   }}
                 />
               </>
@@ -493,10 +273,8 @@ const PadItem = ({
         )}
         <Text
           style={{
-            marginTop: 6,
+            ...styles.sampleName,
             color: playing ? "#252525" : color,
-            fontWeight: "500",
-            fontSize: 11,
           }}
         >
           {displayName}
@@ -508,4 +286,54 @@ const PadItem = ({
 
 export default PadItem;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: { flex: 1, borderRightWidth: 1 },
+  pad: {
+    alignItems: "center",
+    height: 70,
+    justifyContent: "center",
+    position: "relative",
+  },
+  loader: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 9,
+    backgroundColor: "rgba(1,1,1,0.4)",
+  },
+  loopOut: {
+    height: 38,
+    width: 38,
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 2,
+  },
+  looperIn: {
+    height: 30,
+    width: 30,
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  shot: {
+    width: 50,
+    height: 4,
+    marginHorizontal: 7.5,
+    marginTop: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  shotGap: {
+    position: "absolute",
+    width: 5,
+    height: 4,
+  },
+  sampleName: {
+    fontWeight: "500",
+    fontSize: 12,
+    marginTop: 6,
+  },
+});

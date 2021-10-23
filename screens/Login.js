@@ -1,5 +1,6 @@
 import React, { useContext, useLayoutEffect, useState } from "react";
 import {
+  Image,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -10,7 +11,7 @@ import {
 import Loading from "../components/Loading";
 import AppContext from "../context/AppContext";
 import { auth, db, firebase } from "../firebase";
-import { socket } from "../sockets";
+import SocketContext from "../context/SocketContext";
 import Color from "../utils/Color";
 
 const Login = ({ navigation }) => {
@@ -21,6 +22,8 @@ const Login = ({ navigation }) => {
   const {
     user: { user, setUser },
   } = useContext(AppContext);
+
+  const socket = useContext(SocketContext);
 
   const handleLogin = () => {
     setLoading(true);
@@ -63,10 +66,11 @@ const Login = ({ navigation }) => {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Loading show={loading} />
-      <View style={{ paddingHorizontal: 16, paddingTop: 30 }}>
-        <Text style={styles.title}>Log in with your email</Text>
+      <Image source={require("../assets/img/home.jpg")} style={styles.bg} />
+      <SafeAreaView style={styles.content}>
+        <Text style={styles.title}>Enjoy and share the music with us!</Text>
         <View style={styles.inputBox}>
           <View style={styles.inputContainer}>
             <TextInput
@@ -101,8 +105,8 @@ const Login = ({ navigation }) => {
         >
           <Text style={styles.buttonText}>Create New Account</Text>
         </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 };
 
@@ -113,18 +117,34 @@ const styles = StyleSheet.create({
     backgroundColor: "#1c1c1c",
     height: "100%",
   },
+  bg: {
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    resizeMode: "cover",
+  },
+  content: {
+    marginHorizontal: 20,
+    paddingTop: 30,
+    position: "absolute",
+    bottom: 80,
+  },
   title: {
-    fontSize: 25,
+    fontSize: 36,
     color: "white",
-    fontWeight: "bold",
+    fontWeight: "500",
     paddingHorizontal: 20,
     textAlign: "center",
-    marginBottom: 30,
+    marginBottom: 20,
   },
-  inputBox: { backgroundColor: "#303030", borderRadius: 10 },
+  inputBox: { backgroundColor: "#30303060", borderRadius: 10 },
   inputContainer: {
     flexDirection: "row",
-    padding: 12,
+    padding: 14,
     alignItems: "flex-end",
   },
   input: {
@@ -142,7 +162,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 20,
-    padding: 10,
+    padding: 12,
     borderRadius: 10,
     backgroundColor: Color.SystemBlue,
   },

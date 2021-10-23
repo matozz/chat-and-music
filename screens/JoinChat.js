@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   TextInput,
   StyleSheet,
@@ -12,27 +12,43 @@ import {
 import Loading from "../components/Loading";
 import AppContext from "../context/AppContext";
 import Color from "../utils/Color";
-import { MOCK_CHATS } from "../utils/MockData";
 import { AntDesign } from "@expo/vector-icons";
+import SocketContext from "../context/SocketContext";
 
 const JoinChat = ({ navigation }) => {
   const [roomId, setRoomId] = useState("");
   const [loading, setLoading] = useState(false);
+  const [rooms, setRooms] = useState([]);
 
   const {
     user: { user, setUser },
   } = useContext(AppContext);
 
-  const renderPresetRow = ({ id, name, users }, index) => (
+  const socket = useContext(SocketContext);
+
+  useEffect(() => {
+    socket.emit("user-active-room", (rooms) => {
+      // console.log(rooms);
+      setRooms(rooms);
+    });
+  }, []);
+
+  const renderPresetRow = ({ id, name, users, _private, _public }, index) => (
     <TouchableOpacity
       key={id}
       style={styles.chat}
       activeOpacity={0.5}
-      onPress={() => {}}
+      onPress={() => {
+        joinRoom(id, _private ? "private" : "public");
+      }}
     >
       <View style={styles.chatInfo}>
-        <Text style={styles.chatName}>{name}</Text>
-        <Text style={styles.chatUser}> ({users.length})</Text>
+        {_private || _public ? (
+          <Text style={styles.chatName}>{_public ? "公共" : "私人"}房间</Text>
+        ) : (
+          <Text style={styles.chatName}>{name}</Text>
+        )}
+        {!_public && <Text style={styles.chatUser}> ({users.length})</Text>}
       </View>
       <View style={styles.joinIcon}>
         <AntDesign name="arrowright" size={24} color={Color.SystemWhite2} />
@@ -40,7 +56,7 @@ const JoinChat = ({ navigation }) => {
     </TouchableOpacity>
   );
 
-  const joinRoom = () => {
+  const joinRoom = (id, type) => {
     if (!user) {
       Alert.prompt(
         "Username Required",
@@ -63,15 +79,30 @@ const JoinChat = ({ navigation }) => {
     } else {
       setLoading(true);
       Keyboard.dismiss();
-      const timer = setTimeout(() => {
-        navigation.goBack();
-        navigation.navigate("ChatRoom", {
-          roomId: roomId,
+      if (!type) {
+        socket.emit("check-room", id, (status) => {
+          if (status) {
+            alert("房间不存在！");
+            setLoading(false);
+          } else {
+            handleNavigate(id);
+          }
         });
-        // setLoading(false);
-        clearTimeout(timer);
-      }, 1000);
+      } else {
+        handleNavigate(id, type);
+      }
     }
+  };
+
+  const handleNavigate = (id, type) => {
+    const timer = setTimeout(() => {
+      navigation.goBack();
+      navigation.navigate("ChatRoom", {
+        roomId: id,
+        _roomType: type,
+      });
+      clearTimeout(timer);
+    }, 500);
   };
 
   return (
@@ -95,15 +126,15 @@ const JoinChat = ({ navigation }) => {
         </View>
         <TouchableOpacity
           style={styles.button}
-          onPress={joinRoom}
+          onPress={() => joinRoom(roomId)}
           activeOpacity={0.5}
         >
           <Text style={styles.buttonText}>加入</Text>
         </TouchableOpacity>
 
         <View style={{ ...styles.section, marginTop: 0 }}>
-          <Text style={styles.title}>可加入房间</Text>
-          <View style={styles.chatList}>{MOCK_CHATS.map(renderPresetRow)}</View>
+          <Text style={styles.title}>我的房间</Text>
+          <View style={styles.chatList}>{rooms.map(renderPresetRow)}</View>
         </View>
       </ScrollView>
     </View>
@@ -122,7 +153,7 @@ const styles = StyleSheet.create({
   inputBox: { backgroundColor: "#303030", borderRadius: 10 },
   inputContainer: {
     flexDirection: "row",
-    padding: 12,
+    padding: 14,
     alignItems: "flex-end",
   },
   input: {
@@ -147,7 +178,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginVertical: 20,
-    padding: 10,
+    padding: 12,
     borderRadius: 10,
     backgroundColor: Color.SystemBlue,
   },

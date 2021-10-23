@@ -147,6 +147,14 @@ const IdeaScreen = ({ navigation }) => {
       });
   };
 
+  const handleNavigate = (type, entry, packIndex) => {
+    navigation.navigate("Music", {
+      type,
+      packIndex,
+      entry,
+    });
+  };
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={{ height: "100%" }}>
@@ -169,12 +177,17 @@ const IdeaScreen = ({ navigation }) => {
           scrollEventThrottle={200}
           ref={scrollRef}
         >
-          <ContactsList data={pulbicIdeas} type={"publicIdea"} />
+          <ContactsList
+            data={pulbicIdeas}
+            type={"publicIdea"}
+            handleNavigate={handleNavigate}
+          />
           <ContactsList
             data={myIdeas}
             type={"myIdea"}
             delRecording={delRecording}
             uploadRecording={uploadRecording}
+            handleNavigate={handleNavigate}
           />
         </ScrollView>
       </SafeAreaView>

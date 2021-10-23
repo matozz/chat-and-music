@@ -37,7 +37,7 @@ const BUTTONS = [
 
 const MenuButtons = ({ navigation }) => {
   const {
-    connectionState: { socketState, setSocketState },
+    connectionState: { socketState, firebaseState },
   } = useContext(AppContext);
 
   const handleNavigation = (name) => {
@@ -50,6 +50,8 @@ const MenuButtons = ({ navigation }) => {
     } else {
       if (socketState != "connected") {
         Alert.alert("操作失败", "请检查 Socket 连接状态");
+      } else if (firebaseState != "connected") {
+        Alert.alert("操作失败", "请检查登录状态");
       } else {
         navigation.navigate(name);
       }

@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import Loading from "../components/Loading";
 import AppContext from "../context/AppContext";
+import SocketContext from "../context/SocketContext";
 import Color from "../utils/Color";
 
 const CreateChat = ({ navigation }) => {
@@ -20,6 +21,8 @@ const CreateChat = ({ navigation }) => {
   const {
     user: { user, setUser },
   } = useContext(AppContext);
+
+  const socket = useContext(SocketContext);
 
   const joinRoom = () => {
     if (!user) {
@@ -44,16 +47,27 @@ const CreateChat = ({ navigation }) => {
     } else {
       setLoading(true);
       Keyboard.dismiss();
-      const timer = setTimeout(() => {
-        navigation.goBack();
-        navigation.navigate("ChatRoom", {
-          name: name,
-          roomId: roomId,
-        });
-        // setLoading(false);
-        clearTimeout(timer);
-      }, 1000);
+      socket.emit("check-room", roomId, (status) => {
+        if (status) {
+          handleNavigate();
+        } else {
+          alert("房间已存在！");
+          setLoading(false);
+        }
+      });
     }
+  };
+
+  const handleNavigate = () => {
+    const timer = setTimeout(() => {
+      navigation.goBack();
+      navigation.navigate("ChatRoom", {
+        name: name,
+        roomId: roomId,
+      });
+      // setLoading(false);
+      clearTimeout(timer);
+    }, 1000);
   };
 
   return (
@@ -104,7 +118,7 @@ const styles = StyleSheet.create({
   inputBox: { backgroundColor: "#303030", borderRadius: 10 },
   inputContainer: {
     flexDirection: "row",
-    padding: 12,
+    padding: 14,
     alignItems: "flex-end",
   },
   input: {
@@ -129,7 +143,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginVertical: 20,
-    padding: 10,
+    padding: 12,
     borderRadius: 10,
     backgroundColor: Color.SystemBlue,
   },

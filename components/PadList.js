@@ -1,35 +1,11 @@
-import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import React from "react";
+import { StyleSheet, View } from "react-native";
+import { PAD_COLOR } from "../utils/SampleData";
 import PadItem from "./PadItem";
-
-const PAD_COLOR = {
-  Drum: "#71CE73",
-  HiHat: "orange",
-  Bass: "#5786CB",
-  Chord: "#C151A2",
-  Melody: "pink",
-  Synth: "pink",
-  Guitar: "#6E49C9",
-  Strings: "#71CEC3",
-  Piano: "indianred",
-  Vocal: "purple",
-  FX: "brown",
-};
 
 const PadList = ({ type, bpm, status, padItems, row }) => {
   return (
-    <View
-      style={{
-        flexDirection: "row",
-        justifyContent: "space-between",
-        borderWidth: 1,
-        marginHorizontal: 10,
-        borderRadius: 10,
-        backgroundColor: "#262929",
-        marginVertical: 4,
-        overflow: "hidden",
-      }}
-    >
+    <View style={styles.list}>
       {padItems.map((value, index) => (
         <PadItem
           key={index}
@@ -50,4 +26,15 @@ const PadList = ({ type, bpm, status, padItems, row }) => {
 
 export default PadList;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  list: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    borderWidth: 1,
+    marginHorizontal: 10,
+    borderRadius: 10,
+    backgroundColor: "#262929",
+    marginVertical: 4,
+    overflow: "hidden",
+  },
+});

@@ -104,15 +104,31 @@ export const SOUND_SAMPLES = {
 };
 
 export const PAD_COLOR = {
-  Drum: "#71CE73",
-  HiHat: "orange",
-  Bass: "#5786CB",
-  Chord: "#C151A2",
+  Drum: "#47d167",
+  HiHat: "#f19e40",
+  Bass: "#4887cf",
+  Chord: "#d247a5",
   Melody: "pink",
-  Synth: "pink",
-  Guitar: "#6E49C9",
-  Strings: "#71CEC3",
+  Synth: "#5E5CE6",
+  Guitar: "#9455f7",
+  Strings: "#44d0c1",
   Piano: "indianred",
-  Vocal: "purple",
-  FX: "brown",
+  Vocal: "#fa911b",
+  FX: "#fa2f35",
+};
+
+export const PLACEHOLDER_LOOP_GAPS = {
+  2: ["0deg"],
+  4: ["0deg", "90deg"],
+  8: ["0deg", "45deg", "90deg", "135deg"],
+  16: [
+    "0deg",
+    "22.5deg",
+    "45deg",
+    "67.5deg",
+    "90deg",
+    "112.5deg",
+    "135deg",
+    "157.5deg",
+  ],
 };

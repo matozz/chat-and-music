@@ -10,7 +10,7 @@ import {
   View,
 } from "react-native";
 import AppContext from "../context/AppContext";
-import { socket } from "../sockets";
+import SocketContext from "../context/SocketContext";
 import Color from "../utils/Color";
 import { PACKS, PRESETS } from "../utils/MusicPacks";
 
@@ -130,7 +130,6 @@ export default ExploreTab;
 const styles = StyleSheet.create({
   container: {
     width: Dimensions.get("window").width,
-    // paddingLeft: 15,
   },
   online: {
     marginTop: 10,

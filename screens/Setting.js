@@ -17,7 +17,7 @@ import {
 import Loading from "../components/Loading";
 import AppContext from "../context/AppContext";
 import { auth, db } from "../firebase";
-import { socket } from "../sockets";
+import SocketContext from "../context/SocketContext";
 import Color from "../utils/Color";
 
 const Setting = ({ navigation }) => {
@@ -29,6 +29,8 @@ const Setting = ({ navigation }) => {
   const {
     user: { user, setUser },
   } = useContext(AppContext);
+
+  const socket = useContext(SocketContext);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -83,13 +85,6 @@ const Setting = ({ navigation }) => {
         onPress: () => {
           setLoading(true);
           auth.signOut().then(() => {
-            socket.emit("go-offline", {
-              userinfo: {
-                name: 123,
-                id: 1,
-              },
-            });
-            socket.off("online-user");
             navigation.replace("Login");
           });
         },

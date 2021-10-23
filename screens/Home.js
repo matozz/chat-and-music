@@ -20,7 +20,7 @@ import {
 import MenuButtons from "../components/MenuButtons";
 import SearchBar from "../components/SearchBar";
 import { Ionicons } from "@expo/vector-icons";
-import { socket } from "../sockets";
+import SocketContext from "../context/SocketContext";
 // import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import ExploreTab from "../components/ExploreTab";
 import AppContext from "../context/AppContext";
@@ -48,8 +48,10 @@ const CONNECTION_STATE = (handler) => ({
 const Home = ({ navigation }) => {
   const {
     user: { loginState, user },
-    connectionState: { socketState, setSocketState },
+    connectionState: { socketState, firebaseState, connectionId },
   } = useContext(AppContext);
+
+  const socket = useContext(SocketContext);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -89,46 +91,12 @@ const Home = ({ navigation }) => {
     });
   });
 
-  useEffect(() => {
-    connectSocket();
-  }, [user.uid]);
-
   const connectSocket = () => {
-    console.log(user);
-    if (socketState === "failed") {
-      showMessage({
-        message: "Socket 服务连接失败，请检查网络和登录状态",
-        type: "info",
-        icon: "warning",
-        style: {
-          backgroundColor: Color.SystemRed,
-        },
-      });
-    } else if (Object.keys(user).length > 0) {
-      socket.emit("go-online", {
-        userinfo: user,
-      });
-      socket.on("online-user", (users) => {
-        setSocketState("connected");
-        showMessage({
-          message: "Socket 服务连接成功",
-          type: "info",
-          icon: "success",
-          style: {
-            backgroundColor: Color.SystemGreen,
-          },
-        });
-      });
-    } else {
-      showMessage({
-        message: "Socket 服务连接中...",
-        type: "info",
-        icon: "info",
-        style: {
-          backgroundColor: Color.SystemOrange,
-        },
-      });
-    }
+    console.log({
+      socketState,
+      connectionId,
+      firebaseState,
+    });
   };
 
   useEffect(() => {

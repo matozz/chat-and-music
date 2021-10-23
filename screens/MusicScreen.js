@@ -46,30 +46,6 @@ const MusicScreen = ({ navigation, route }) => {
     navigation.setOptions({
       headerTitle: entry,
       headerBackTitle: "",
-      // headerLeft: () => (
-      //   <View
-      //     style={{
-      //       flexDirection: "row",
-      //       justifyContent: "space-between",
-      //       width: 70,
-      //       marginLeft: 20,
-      //     }}
-      //   >
-      //     <TouchableOpacity activeOpacity={0.5}>
-      //       <Ionicons name="radio-button-on" size={24} color="white" />
-      //     </TouchableOpacity>
-      //     <TouchableOpacity
-      //       activeOpacity={0.5}
-      //       onPress={() => setStart(!start)}
-      //     >
-      //       {start ? (
-      //         <Ionicons name="stop" size={24} color="white" />
-      //       ) : (
-      //         <Ionicons name="play" size={24} color="white" />
-      //       )}
-      //     </TouchableOpacity>
-      //   </View>
-      // ),
       headerRight: () => (
         <View
           style={{
@@ -198,13 +174,7 @@ const MusicScreen = ({ navigation, route }) => {
 
       <View style={{ backgroundColor: "#111111" }}>
         <Loading show={loading} />
-        <View
-          style={{
-            height: "100%",
-            backgroundColor: "#202020",
-            paddingTop: 15,
-          }}
-        >
+        <View style={styles.container}>
           <View style={styles.infobox}>
             <Text style={styles.info}>当前素材包: {PACKS[packIndex].name}</Text>
             <Text style={styles.info}>速度: {bpm}</Text>
@@ -221,7 +191,7 @@ const MusicScreen = ({ navigation, route }) => {
                 bpm={bpm}
               />
             ))}
-          {type !== "preset" && (
+          {type !== ("preset" || "record") && (
             <MusicActionBar
               setStart={setStart}
               start={start}
@@ -243,6 +213,11 @@ const MusicScreen = ({ navigation, route }) => {
 export default MusicScreen;
 
 const styles = StyleSheet.create({
+  container: {
+    height: "100%",
+    backgroundColor: "#202020",
+    paddingTop: 15,
+  },
   infobox: {
     flexDirection: "row",
     justifyContent: "space-between",

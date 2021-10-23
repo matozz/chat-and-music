@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   inputBox: { backgroundColor: "#303030", borderRadius: 10 },
   inputContainer: {
     flexDirection: "row",
-    padding: 12,
+    padding: 14,
     alignItems: "flex-end",
   },
   input: {
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 20,
-    padding: 10,
+    padding: 12,
     borderRadius: 10,
     backgroundColor: Color.SystemBlue,
   },

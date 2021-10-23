@@ -14,8 +14,15 @@ import * as Haptics from "expo-haptics";
 import { Ionicons } from "@expo/vector-icons";
 import Color from "../utils/Color";
 import { formatDate, formatDuration } from "../utils/Translator";
+import { PACKS } from "../utils/MusicPacks";
 
-const ContactsList = ({ data, type, delRecording, uploadRecording }) => {
+const ContactsList = ({
+  data,
+  type,
+  delRecording,
+  uploadRecording,
+  handleNavigate,
+}) => {
   const [refreshing, setRefreshing] = useState(false);
 
   const handleRecordingOptions = ({ name, id, index }) => {
@@ -40,6 +47,15 @@ const ContactsList = ({ data, type, delRecording, uploadRecording }) => {
     );
   };
 
+  const handlePressRecord = (index, pack) => {
+    let packIndex = PACKS.findIndex((item) => item.name === pack);
+    if (packIndex !== -1) {
+      handleNavigate("record", `New Recoding #${index + 1}`, packIndex);
+    } else {
+      alert("操作失败，素材包不存在！");
+    }
+  };
+
   const renderIdeaRow = ({
     item: {
       id,
@@ -58,6 +74,7 @@ const ContactsList = ({ data, type, delRecording, uploadRecording }) => {
           index,
         })
       }
+      onPress={() => handlePressRecord(index, pack)}
     >
       <View style={styles.starredIcon}>
         <Ionicons name="ios-musical-notes" size={24} color="#efefef" />

@@ -1,19 +1,19 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { StyleSheet } from "react-native";
 import FlashMessage, { showMessage } from "react-native-flash-message";
 import AppContext from "./context/AppContext";
 import { auth } from "./firebase";
 import Navigation from "./Navigation";
-import { socket } from "./sockets";
+import SocketContext, { socket } from "./context/SocketContext";
 import Color from "./utils/Color";
 
 export default function App() {
-  const [curUser, setCurUser] = useState(auth.currentUser);
+  // const [curUser, setCurUser] = useState(auth.currentUser);
   const [user, setUser] = useState({});
   const [loginState, setLoginState] = useState(null);
   const [socketState, setSocketState] = useState("connecting");
-  const [restartSocket, setRestartSocket] = useState(false);
-  const connectionRef = useRef();
+  const [firebaseState, setFirebaseState] = useState("connecting");
+  const [connectionId, setConnectionId] = useState("");
 
   const userInfo = {
     user: user,
@@ -23,72 +23,79 @@ export default function App() {
 
   const connectionState = {
     socketState: socketState,
-    setSocketState: setSocketState,
+    firebaseState: firebaseState,
+    connectionId: connectionId,
   };
 
   useEffect(() => {
-    auth.onAuthStateChanged((user) => {
-      console.log(user);
-      if (user) {
-        setUser({
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-        });
-        setLoginState("LOGIN");
-      } else {
-        setLoginState("LOGOUT");
-      }
-    });
+    auth.onAuthStateChanged(
+      (user) => {
+        if (user) {
+          setUser({
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+          });
+          setFirebaseState("connected");
+          setLoginState("LOGIN");
+        } else {
+          setLoginState("LOGOUT");
+          setFirebaseState("failed");
+        }
+      },
+      (e) => console.log(e)
+    );
   }, []);
 
   useEffect(() => {
     socket.on("connect", () => {
-      console.log("[STATUS]: connected");
-      // setSocketState("connected");
+      console.log("[SERVER]: connected");
+      showMessage({
+        message: "Socket 服务连接成功",
+        type: "info",
+        icon: "success",
+        style: {
+          backgroundColor: Color.SystemGreen,
+        },
+      });
+      setSocketState("connected");
+      setConnectionId(socket.id);
+    });
+
+    socket.once("connect_error", () => {
+      showMessage({
+        message: "Socket 服务连接失败，请检查网络连接状态",
+        type: "info",
+        icon: "warning",
+        style: {
+          backgroundColor: Color.SystemRed,
+        },
+      });
+      setSocketState("failed");
     });
 
     return () => {
-      console.log("[STATUS]: disconnect from server");
-      socket.disconnect();
+      console.log("[SERVER]: disconnect from server");
+      // socket.disconnect();
     };
-  }, [restartSocket]);
-
-  useEffect(() => {
-    connectionRef.current = socketState;
-  }, [socketState]);
-
-  useEffect(() => {
-    if (socketState === "connecting") {
-      const timer = setTimeout(() => {
-        if (connectionRef.current === "connecting") {
-          console.log(connectionRef.current);
-          setSocketState("failed");
-          showMessage({
-            message: "Socket 服务连接失败，请检查网络和登录状态",
-            type: "info",
-            icon: "warning",
-            style: {
-              backgroundColor: Color.SystemRed,
-            },
-          });
-        }
-        clearTimeout(timer);
-      }, 5000);
-    }
-  }, [socketState]);
+  }, []);
 
   return (
     <AppContext.Provider
-      value={{ user: userInfo, connectionState: connectionState }}
+      value={{
+        user: userInfo,
+        connectionState: connectionState,
+      }}
     >
-      <Navigation />
-      <FlashMessage
-        position="bottom"
-        titleStyle={{
-          fontWeight: "500",
-        }}
-      />
+      <SocketContext.Provider value={socket}>
+        <Navigation />
+        <FlashMessage
+          position="bottom"
+          titleStyle={{
+            fontWeight: "500",
+          }}
+        />
+      </SocketContext.Provider>
     </AppContext.Provider>
   );
 }

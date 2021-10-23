@@ -14,7 +14,7 @@ import { Camera } from "expo-camera";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 let socket;
-const API_URL = "http://192.168.0.111:3001";
+const API_URL = "http://192.168.0.111:3000";
 
 const CreateChat = ({ navigation }) => {
   const [name, setName] = useState("");

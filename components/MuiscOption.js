@@ -12,26 +12,9 @@ for (let i = 0; i < 120; i++) {
 const MuiscOption = ({ bpm, setSelectedBpm, packIndex, setPackIndex }) => {
   const [bpm1, setBpm1] = useState(bpm);
 
-  // const PACKS = [
-  //   { title: "The ChainSmokers" },
-  //   { title: "Jay Chou" },
-  //   { title: "Trap" },
-  //   { title: "Tropical House" },
-  // ];
-
   return (
-    <View style={{ marginBottom: 20 }}>
-      <Text
-        style={{
-          color: "white",
-          marginTop: 20,
-          fontSize: 17,
-          fontWeight: "600",
-          textAlign: "center",
-        }}
-      >
-        BPM（每分钟节拍数）
-      </Text>
+    <View style={{ marginVertical: 20 }}>
+      <Text style={styles.title}>BPM（每分钟节拍数）</Text>
       <Picker
         selectedValue={String(bpm1)}
         onValueChange={(itemValue, itemIndex) => {
@@ -39,7 +22,6 @@ const MuiscOption = ({ bpm, setSelectedBpm, packIndex, setPackIndex }) => {
           setSelectedBpm(itemValue);
         }}
       >
-        {/* <Picker.Item label="1" value="1" color="white" /> */}
         {allBpm.map((value, index) => (
           <Picker.Item
             key={value}
@@ -49,27 +31,8 @@ const MuiscOption = ({ bpm, setSelectedBpm, packIndex, setPackIndex }) => {
           />
         ))}
       </Picker>
-      <Text
-        style={{
-          color: "white",
-          marginTop: 10,
-          marginBottom: 16,
-          fontSize: 17,
-          fontWeight: "600",
-          textAlign: "center",
-        }}
-      >
-        素材包
-      </Text>
-      <View
-        style={{
-          // width: 370,
-          // flexDirection: "row",
-          justifyContent: "space-between",
-          marginHorizontal: 10,
-          // flexWrap: "wrap",
-        }}
-      >
+      <Text style={styles.title}>素材包</Text>
+      <View style={styles.packBox}>
         {PACKS.map((value, index) => (
           <TouchableOpacity
             style={{
@@ -81,9 +44,7 @@ const MuiscOption = ({ bpm, setSelectedBpm, packIndex, setPackIndex }) => {
             activeOpacity={0.5}
             onPress={() => setPackIndex(index)}
           >
-            <Text style={{ color: "white", fontWeight: "bold" }}>
-              {value.name}
-            </Text>
+            <Text style={styles.packTitle}>{value.name}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -94,15 +55,24 @@ const MuiscOption = ({ bpm, setSelectedBpm, packIndex, setPackIndex }) => {
 export default MuiscOption;
 
 const styles = StyleSheet.create({
+  title: {
+    color: "white",
+    fontSize: 17,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  packBox: {
+    justifyContent: "space-between",
+    marginHorizontal: 10,
+    marginVertical: 16,
+  },
   pack: {
     backgroundColor: "#303030",
-    // width: 180,
     flex: 1,
-    // marginHorizontal: 16,
     marginBottom: 10,
     padding: 16,
     borderRadius: 10,
     justifyContent: "center",
-    // height: 100,
   },
+  packTitle: { color: "white", fontWeight: "bold" },
 });

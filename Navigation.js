@@ -60,7 +60,7 @@ const Navigation = () => {
             name="JoinChat"
             component={JoinChat}
             options={{
-              headerTitle: "加入一个音乐房间",
+              headerTitle: "加入音乐房间",
             }}
           />
           <Stack.Screen

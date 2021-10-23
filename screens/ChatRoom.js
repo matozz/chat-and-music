@@ -6,12 +6,21 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { AppState, Linking, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  AppState,
+  Keyboard,
+  Linking,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import { GiftedChat } from "react-native-gifted-chat";
 import { Ionicons } from "@expo/vector-icons";
 import AppContext from "../context/AppContext";
 import "react-native-get-random-values";
-import { socket } from "../sockets";
+import SocketContext from "../context/SocketContext";
+import { Modalize } from "react-native-modalize";
+import ChatOption from "../components/ChatOption";
+import Loading from "../components/Loading";
 
 const parsePatterns = (_linkStyle) => {
   return [
@@ -29,28 +38,41 @@ const ChatRoom = ({ navigation, route }) => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [messages, setMessages] = useState([]);
   const [typing, setTyping] = useState(false);
-  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [roomSize, setRoomSize] = useState(0);
   const [roomName, setRoomName] = useState(route?.params?.name ?? null);
+
+  const modalizeRef = useRef(null);
 
   const {
     user: { user },
   } = useContext(AppContext);
 
-  const { roomId } = route.params;
+  const socket = useContext(SocketContext);
+
+  const { roomId, _roomType } = route.params;
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: !isConnecting
-        ? `${roomName ? roomName : "Room"} (${users.length})`
+        ? `${roomName ? roomName : "Room"} (${roomSize})`
         : "Connecting",
       headerBackTitle: "",
       headerRight: () => (
-        <TouchableOpacity style={{ ...styles.button, paddingLeft: 20 }}>
+        <TouchableOpacity
+          style={{ ...styles.button, paddingLeft: 20 }}
+          onPress={handleModal}
+        >
           <Ionicons name="ellipsis-horizontal" size={24} color="#efefef" />
         </TouchableOpacity>
       ),
     });
-  }, [users, isConnecting, roomName]);
+  }, [roomSize, isConnecting, roomName]);
+
+  const handleModal = () => {
+    Keyboard.dismiss();
+    modalizeRef.current?.open();
+  };
 
   // useEffect(() => {
   //   const subscription = AppState.addEventListener("change", (nextAppState) => {
@@ -73,38 +95,42 @@ const ChatRoom = ({ navigation, route }) => {
 
   useEffect(() => {
     // if (appStateVisible !== "active") return;
-    setIsConnecting(true);
+    // setIsConnecting(true);
+    if (roomId) {
+      socket.emit(
+        "join-room",
+        { roomId, roomName },
+        user,
+        (message, roomName, roomSize) => {
+          handleNewMessage(message);
+          setRoomName(roomName);
+          setRoomSize(roomSize);
+        }
+      );
+    } else {
+      socket.emit("join-public-room", (message, roomName, roomSize) => {
+        handleNewMessage(message);
+        setRoomName(roomName);
+        setRoomSize(roomSize);
+      });
+    }
 
-    socket.emit("join-room", {
-      roomName: roomName,
-      user: user,
-      roomId: roomId,
-    });
-
-    socket.on("all-users", (users) => {
-      setUsers(users);
-      setIsConnecting(false);
-    });
-
-    socket.on("all-msg", (msg) => {
+    socket.on("receive-message", (msg) => {
       handleNewMessage(msg);
     });
 
-    socket.on("room-name", (name) => {
-      setRoomName(name);
-      // console.log(name);
+    socket.on("room-size", (size) => {
+      setRoomSize(size);
     });
 
-    socket.on("room-typing", (status) => {
+    socket.on("receive-typing", (status) => {
       setTyping(status);
     });
 
     return () => {
-      console.log(11111111);
-      socket.off("all-users");
-      socket.off("all-msg");
-      socket.off("room-name");
-      socket.off("room-typing");
+      socket.off("receive-message");
+      socket.off("room-size");
+      socket.off("receive-typing");
     };
   }, []);
 
@@ -144,15 +170,13 @@ const ChatRoom = ({ navigation, route }) => {
   }, []);
 
   const onSend = useCallback((messages = []) => {
-    socket.emit("send-msg", { roomId: roomId, msg: messages });
-    // setMessages((previousMessages) =>
-    //   GiftedChat.append(previousMessages, messages)
-    // );
+    socket.emit("send-message", messages, roomId);
+    handleNewMessage(messages);
   }, []);
 
   const onTyping = useCallback((msg) => {
     if (!msg) return;
-    socket.emit("typing-msg", { roomId: roomId });
+    socket.emit("send-typing", roomId);
   }, []);
 
   const onQuickReply = (msg) => {
@@ -166,35 +190,56 @@ const ChatRoom = ({ navigation, route }) => {
   });
 
   return (
-    <GiftedChat
-      messages={messages}
-      messagesContainerStyle={{
-        backgroundColor: "#1c1c1c",
-      }}
-      parsePatterns={parsePatterns}
-      showUserAvatar={true}
-      alwaysShowSend={true}
-      // loadEarlier={true}
-      // isLoadingEarlier={true}
-      bottomOffset={34}
-      textInputProps={{
-        autoCapitalize: "none",
-        keyboardAppearance: "dark",
-        autoCorrect: false,
-      }}
-      textInputStyle={{
-        color: "white",
-        fontWeight: "500",
-      }}
-      isTyping={typing}
-      onQuickReply={(message) => onQuickReply(message)}
-      onInputTextChanged={(msg) => onTyping(msg)}
-      onSend={(messages) => onSend(messages)}
-      user={{
-        _id: user.uid,
-        name: user.displayName,
-      }}
-    />
+    <>
+      <Modalize
+        ref={modalizeRef}
+        modalHeight={400}
+        modalStyle={{ backgroundColor: "#202020" }}
+        handleStyle={{ backgroundColor: "#888888" }}
+      >
+        <ChatOption
+          user={user}
+          socket={socket}
+          roomId={roomId}
+          navigation={navigation}
+          roomInfo={{
+            roomId,
+            roomName,
+            roomType: _roomType,
+          }}
+        />
+      </Modalize>
+      <Loading show={loading} />
+      <GiftedChat
+        messages={messages}
+        messagesContainerStyle={{
+          backgroundColor: "#1c1c1c",
+        }}
+        parsePatterns={parsePatterns}
+        showUserAvatar={true}
+        alwaysShowSend={true}
+        // loadEarlier={true}
+        // isLoadingEarlier={true}
+        bottomOffset={34}
+        textInputProps={{
+          autoCapitalize: "none",
+          keyboardAppearance: "dark",
+          autoCorrect: false,
+        }}
+        textInputStyle={{
+          color: "white",
+          fontWeight: "500",
+        }}
+        isTyping={typing}
+        onQuickReply={(message) => onQuickReply(message)}
+        onInputTextChanged={(msg) => onTyping(msg)}
+        onSend={(messages) => onSend(messages)}
+        user={{
+          _id: user.uid,
+          name: user.displayName,
+        }}
+      />
+    </>
   );
 };
 

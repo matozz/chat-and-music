@@ -17,7 +17,6 @@
     "expo-blur": "~9.0.3",
     "expo-camera": "~11.2.2",
     "expo-haptics": "~10.1.0",
-    "expo-screen-orientation": "~3.3.0",
     "expo-status-bar": "~1.0.4",
     "firebase": "8.2.3",
     "react": "16.13.1",

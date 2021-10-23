@@ -96,8 +96,8 @@ const styles = StyleSheet.create({
     right: 0,
   },
   icon: {
-    paddingTop: 20,
-    paddingBottom: 6,
+    paddingTop: 15,
+    paddingBottom: Platform.OS === "ios" ? 6 : 15,
     flex: 1,
     alignItems: "center",
   },

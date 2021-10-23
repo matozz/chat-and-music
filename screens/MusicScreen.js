@@ -5,7 +5,14 @@ import React, {
   useRef,
   useContext,
 } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, Alert } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Alert,
+  Platform,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import PadList from "../components/PadList";
 import { Modalize } from "react-native-modalize";
@@ -173,7 +180,7 @@ const MusicScreen = ({ navigation, route }) => {
       </Modalize>
 
       <View style={{ backgroundColor: "#111111" }}>
-        <Loading show={loading} />
+        {Platform.OS === "ios" && <Loading show={loading} />}
         <View style={styles.container}>
           <View style={styles.infobox}>
             <Text style={styles.info}>当前素材包: {PACKS[packIndex].name}</Text>

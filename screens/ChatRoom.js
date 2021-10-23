@@ -10,6 +10,7 @@ import {
   AppState,
   Keyboard,
   Linking,
+  Platform,
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
@@ -209,7 +210,7 @@ const ChatRoom = ({ navigation, route }) => {
           }}
         />
       </Modalize>
-      <Loading show={loading} />
+      {Platform.OS === "ios" && <Loading show={loading} />}
       <GiftedChat
         messages={messages}
         messagesContainerStyle={{

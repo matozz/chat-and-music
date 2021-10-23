@@ -6,6 +6,7 @@ import React, {
   useState,
 } from "react";
 import {
+  Platform,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -158,7 +159,7 @@ const IdeaScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={{ height: "100%" }}>
-        <Loading show={loading} />
+        {Platform.OS === "ios" && <Loading show={loading} />}
         <View style={styles.controlbar}>
           <SegmentedControl
             values={["热门", "我的灵感"]}

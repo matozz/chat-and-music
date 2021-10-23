@@ -1,6 +1,7 @@
 import { createUserWithEmailAndPassword, updateProfile } from "@firebase/auth";
 import React, { useContext, useLayoutEffect, useState } from "react";
 import {
+  Platform,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -61,7 +62,7 @@ const Register = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Loading show={loading} />
+      {Platform.OS === "ios" && <Loading show={loading} />}
       <View style={{ paddingHorizontal: 16, paddingTop: 20 }}>
         {/* <Text style={styles.title}>Log in with your phone number</Text> */}
         <View style={styles.inputBox}>

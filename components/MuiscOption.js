@@ -21,6 +21,7 @@ const MuiscOption = ({ bpm, setSelectedBpm, packIndex, setPackIndex }) => {
           setBpm1(itemValue);
           setSelectedBpm(itemValue);
         }}
+        // mode="dropdown"
       >
         {allBpm.map((value, index) => (
           <Picker.Item

@@ -8,6 +8,7 @@ import {
   Alert,
   Keyboard,
   ScrollView,
+  Platform,
 } from "react-native";
 import Loading from "../components/Loading";
 import AppContext from "../context/AppContext";
@@ -107,8 +108,7 @@ const JoinChat = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Loading show={loading} />
-
+      {Platform.OS === "ios" && <Loading show={loading} />}
       <ScrollView>
         <View style={styles.inputBox}>
           <View style={styles.inputContainer}>

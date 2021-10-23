@@ -88,6 +88,7 @@ const Home = ({ navigation }) => {
         </TouchableOpacity>
       ),
       headerTitle: "Music & Chat",
+      headerTitleAlign: "center",
     });
   });
 

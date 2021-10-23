@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import {
   Alert,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -103,7 +104,7 @@ const Setting = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Loading show={loading} />
+      {Platform.OS === "ios" && <Loading show={loading} />}
       {user.uid ? (
         <>
           <View style={styles.inputBox}>

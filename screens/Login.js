@@ -1,6 +1,7 @@
 import React, { useContext, useLayoutEffect, useState } from "react";
 import {
   Image,
+  Platform,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -67,7 +68,7 @@ const Login = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Loading show={loading} />
+      {Platform.OS === "ios" && <Loading show={loading} />}
       <Image source={require("../assets/img/home.jpg")} style={styles.bg} />
       <SafeAreaView style={styles.content}>
         <Text style={styles.title}>Enjoy and share the music with us!</Text>

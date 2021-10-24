@@ -39,12 +39,13 @@ const MusicActionBar = ({
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity style={styles.icon}>
+      <TouchableOpacity style={styles.icon} activeOpacity={0.4}>
         <Ionicons name="barcode-outline" size={26} color="white" />
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.icon}
         onPress={() => setIsRecording(!isRecording)}
+        activeOpacity={0.4}
       >
         <Ionicons
           name="radio-button-on"
@@ -52,7 +53,11 @@ const MusicActionBar = ({
           color={isRecording ? Color.SystemRed : "white"}
         />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.icon} onPress={handleStartStop}>
+      <TouchableOpacity
+        style={styles.icon}
+        onPress={handleStartStop}
+        activeOpacity={0.4}
+      >
         {start ? (
           <Ionicons name="stop" size={26} color={Color.SystemRed} />
         ) : (
@@ -62,6 +67,7 @@ const MusicActionBar = ({
       <TouchableOpacity
         style={styles.icon}
         onPress={() => handleModeChange("bed")}
+        activeOpacity={0.4}
       >
         <Ionicons
           name="bed"
@@ -72,6 +78,7 @@ const MusicActionBar = ({
       <TouchableOpacity
         style={styles.icon}
         onPress={() => handleModeChange("beer")}
+        activeOpacity={0.4}
       >
         <Ionicons
           name="beer"

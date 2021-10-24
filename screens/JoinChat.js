@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     padding: 14,
-    alignItems: "flex-end",
+    alignItems: "center",
   },
   input: {
     marginLeft: 10,

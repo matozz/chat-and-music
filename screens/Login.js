@@ -1,4 +1,4 @@
-import React, { useContext, useLayoutEffect, useState } from "react";
+import React, { useContext, useEffect, useLayoutEffect, useState } from "react";
 import {
   Image,
   Platform,
@@ -14,6 +14,8 @@ import AppContext from "../context/AppContext";
 import { auth, db, firebase } from "../firebase";
 import SocketContext from "../context/SocketContext";
 import Color from "../utils/Color";
+import { LinearGradient } from "expo-linear-gradient";
+import home from "../assets/img/home.jpg";
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -66,10 +68,20 @@ const Login = ({ navigation }) => {
     });
   }, []);
 
+  useEffect(() => {
+    Image.resolveAssetSource(home);
+  }, []);
+
   return (
     <View style={styles.container}>
       {Platform.OS === "ios" && <Loading show={loading} />}
-      <Image source={require("../assets/img/home.jpg")} style={styles.bg} />
+      <Image source={home} style={styles.bg} />
+      <LinearGradient
+        // Background Linear Gradient
+        colors={["transparent", "rgba(28,28,28,1)"]}
+        locations={[0, 0.6]}
+        style={styles.mask}
+      />
       <SafeAreaView style={styles.content}>
         <Text style={styles.title}>Enjoy and share the music with us!</Text>
         <View style={styles.inputBox}>
@@ -97,12 +109,17 @@ const Login = ({ navigation }) => {
             />
           </View>
         </View>
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleLogin}
+          activeOpacity={0.5}
+        >
           <Text style={styles.buttonText}>Log In</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.button}
           onPress={() => navigation.navigate("Register")}
+          activeOpacity={0.5}
         >
           <Text style={styles.buttonText}>Create New Account</Text>
         </TouchableOpacity>
@@ -128,6 +145,16 @@ const styles = StyleSheet.create({
     right: 0,
     resizeMode: "cover",
   },
+  mask: {
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    // backgroundColor: "red",
+  },
   content: {
     marginHorizontal: 20,
     paddingTop: 30,
@@ -142,7 +169,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 20,
   },
-  inputBox: { backgroundColor: "#30303060", borderRadius: 10 },
+  inputBox: { backgroundColor: "#303030", borderRadius: 10 },
   inputContainer: {
     flexDirection: "row",
     padding: 14,

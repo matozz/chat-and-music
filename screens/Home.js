@@ -60,6 +60,7 @@ const Home = ({ navigation }) => {
           <TouchableOpacity
             style={{ ...styles.button, paddingRight: 20 }}
             onPress={() => navigation.navigate("Notification")}
+            activeOpacity={0.5}
           >
             <Ionicons
               name="ios-notifications-outline"
@@ -70,6 +71,7 @@ const Home = ({ navigation }) => {
           <TouchableOpacity
             style={{ ...styles.button, paddingRight: 20 }}
             onPress={connectSocket}
+            activeOpacity={0.5}
           >
             <Ionicons
               name={CONNECTION_STATE("socket")[socketState].icon}
@@ -83,6 +85,7 @@ const Home = ({ navigation }) => {
         <TouchableOpacity
           style={{ ...styles.button, paddingLeft: 20 }}
           onPress={() => navigation.navigate("Setting")}
+          activeOpacity={0.5}
         >
           <Ionicons name="ios-person-outline" size={24} color="#efefef" />
         </TouchableOpacity>
@@ -93,11 +96,13 @@ const Home = ({ navigation }) => {
   });
 
   const connectSocket = () => {
-    console.log({
+    let connection = {
       socketState,
       connectionId,
       firebaseState,
-    });
+    };
+
+    alert(JSON.stringify(connection));
   };
 
   useEffect(() => {

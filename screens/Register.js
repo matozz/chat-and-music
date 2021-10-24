@@ -31,6 +31,7 @@ const Register = ({ navigation }) => {
         <TouchableOpacity
           style={{ paddingLeft: 20 }}
           onPress={() => navigation.goBack()}
+          activeOpacity={0.5}
         >
           <Text style={styles.navButton}>Done</Text>
         </TouchableOpacity>
@@ -102,7 +103,11 @@ const Register = ({ navigation }) => {
             />
           </View>
         </View>
-        <TouchableOpacity style={styles.button} onPress={handleRegister}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleRegister}
+          activeOpacity={0.5}
+        >
           <Text style={styles.buttonText}>Create New Account</Text>
         </TouchableOpacity>
       </View>

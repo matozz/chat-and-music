@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from "react-native";
 const Notification = () => {
   return (
     <View style={styles.container}>
-      <Text>123</Text>
+      <Text style={styles.lable}>Notifications</Text>
     </View>
   );
 };
@@ -17,5 +17,10 @@ const styles = StyleSheet.create({
     height: "100%",
     paddingTop: 10,
     paddingHorizontal: 12,
+  },
+  lable: {
+    color: "white",
+    fontSize: 17,
+    fontWeight: "500",
   },
 });

@@ -159,6 +159,7 @@ const PadItem = ({
           ...styles.pad,
           backgroundColor: playing ? color : "transparent",
         }}
+        activeOpacity={0.5}
       >
         {loading && <ActivityIndicator size="small" style={styles.loader} />}
 

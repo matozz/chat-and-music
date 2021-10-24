@@ -99,7 +99,11 @@ const CreateChat = ({ navigation }) => {
           />
         </View>
       </View>
-      <TouchableOpacity style={styles.button} onPress={joinRoom}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={joinRoom}
+        activeOpacity={0.5}
+      >
         <Text style={styles.buttonText}>创建</Text>
       </TouchableOpacity>
     </View>
@@ -119,7 +123,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     padding: 14,
-    alignItems: "flex-end",
+    alignItems: "center",
   },
   input: {
     marginLeft: 10,

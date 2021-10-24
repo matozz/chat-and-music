@@ -39,6 +39,7 @@ const Setting = ({ navigation }) => {
         <TouchableOpacity
           style={{ paddingLeft: 20 }}
           onPress={() => navigation.goBack()}
+          activeOpacity={0.5}
         >
           <Text style={styles.navButton}>Done</Text>
         </TouchableOpacity>
@@ -128,6 +129,7 @@ const Setting = ({ navigation }) => {
       ) : (
         <TouchableOpacity
           style={{ ...styles.button, backgroundColor: Color.SystemBlue }}
+          activeOpacity={0.5}
           onPress={handleLogin}
         >
           <Text style={styles.buttonText}>Log In</Text>
@@ -155,7 +157,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     padding: 12,
-    alignItems: "flex-end",
+    alignItems: "center",
   },
   input: {
     marginLeft: 0,

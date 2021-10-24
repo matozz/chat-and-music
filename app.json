@@ -17,14 +17,14 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.matoz.music-chat",
-      "buildNumber": "1.1.0"
+      "buildNumber": "1.0.0"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.matoz.music-chat",
+      "package": "com.matoz.music_chat",
       "versionCode": 1
     },
     "web": {

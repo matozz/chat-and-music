@@ -24,6 +24,7 @@ import Loading from "../components/Loading";
 import { db, firebase } from "../firebase";
 import AppContext from "../context/AppContext";
 import { useInterval } from "../hooks/useInterval";
+import SocketContext from "../context/SocketContext";
 
 const MusicScreen = ({ navigation, route }) => {
   const [time, setTime] = useState(1);
@@ -43,11 +44,13 @@ const MusicScreen = ({ navigation, route }) => {
   const [loading, setLoading] = useState(false);
   const modalizeRef = useRef(null);
 
-  const { entry, type } = route.params;
+  const { entry, type, roomId } = route.params;
 
   const {
     user: { user },
   } = useContext(AppContext);
+
+  const socket = useContext(SocketContext);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -60,7 +63,23 @@ const MusicScreen = ({ navigation, route }) => {
             justifyContent: "space-between",
           }}
         >
-          <TouchableOpacity activeOpacity={0.5} onPress={handleModal}>
+          {type === "live" && (
+            <TouchableOpacity
+              activeOpacity={0.5}
+              onPress={() => {
+                emitLiveEvent(false);
+                navigation.goBack();
+              }}
+              style={{ ...styles.button, paddingLeft: 20 }}
+            >
+              <Ionicons name="exit-outline" size={24} color="white" />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            activeOpacity={0.5}
+            onPress={handleModal}
+            style={{ ...styles.button, paddingLeft: 20 }}
+          >
             <Ionicons name="ellipsis-horizontal" size={24} color="white" />
           </TouchableOpacity>
         </View>
@@ -77,10 +96,6 @@ const MusicScreen = ({ navigation, route }) => {
       setTime(time + 1);
     }
   }, (60 / bpm) * 1000);
-
-  const handleModal = () => {
-    modalizeRef.current?.open();
-  };
 
   useEffect(() => {
     modalizeRef.current?.close();
@@ -134,6 +149,31 @@ const MusicScreen = ({ navigation, route }) => {
       });
     }
   }, [isRecording]);
+
+  // handle live mode socket
+  useEffect(() => {
+    emitLiveEvent(true);
+  }, [packIndex, start, mode, bpm]);
+
+  const emitLiveEvent = (status) => {
+    if (type === "live") {
+      socket.emit(
+        "send-music-room",
+        {
+          pack: PACKS[packIndex].name,
+          bpm: bpm,
+          isPlaying: start,
+          mode: mode,
+          isOpen: status,
+        },
+        roomId
+      );
+    }
+  };
+
+  const handleModal = () => {
+    modalizeRef.current?.open();
+  };
 
   const handleModalClose = () => {
     setBpm(selectedBpm);

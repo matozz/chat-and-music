@@ -2,13 +2,13 @@
   "expo": {
     "name": "Music & Chat",
     "slug": "music-chat",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000000"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -17,18 +17,19 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.matoz.music-chat",
-      "buildNumber": "1.0.0"
+      "buildNumber": "1.1.1"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
+        "backgroundColor": "#000000"
       },
       "package": "com.matoz.music_chat",
       "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "description": ""
   }
 }

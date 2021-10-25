@@ -9,7 +9,14 @@ import {
 } from "react-native";
 import Color from "../utils/Color";
 
-const ChatOption = ({ user, socket, roomId, navigation, roomInfo }) => {
+const ChatOption = ({
+  user,
+  socket,
+  roomId,
+  navigation,
+  roomInfo,
+  musicRoomInfo,
+}) => {
   const handleSendMusic = () => {
     navigation.navigate("Music", {
       type: "record",
@@ -23,6 +30,7 @@ const ChatOption = ({ user, socket, roomId, navigation, roomInfo }) => {
       type: "live",
       packIndex: 0,
       entry: "实时创作",
+      roomId: roomId,
     });
   };
 
@@ -62,6 +70,12 @@ const ChatOption = ({ user, socket, roomId, navigation, roomInfo }) => {
       <View>
         <Text style={styles.info}>RoomID: {roomInfo.roomId}</Text>
         <Text style={styles.info}>RoomName: {roomInfo.roomName}</Text>
+        <Text style={styles.info}>isOpen: {String(musicRoomInfo.isOpen)}</Text>
+        <Text style={styles.info}>
+          isPlaying: {String(musicRoomInfo.isPlaying)}
+        </Text>
+        <Text style={styles.info}>nowPlaying: {musicRoomInfo.pack}</Text>
+        <Text style={styles.info}>bpm: {musicRoomInfo.bpm}</Text>
       </View>
     </SafeAreaView>
   );

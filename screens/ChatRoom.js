@@ -40,6 +40,7 @@ const ChatRoom = ({ navigation, route }) => {
   const [messages, setMessages] = useState([]);
   const [typing, setTyping] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [musicRoomInfo, setMusicRoomInfo] = useState({});
   const [roomSize, setRoomSize] = useState(0);
   const [roomName, setRoomName] = useState(route?.params?.name ?? null);
 
@@ -128,10 +129,15 @@ const ChatRoom = ({ navigation, route }) => {
       setTyping(status);
     });
 
+    socket.on("music-room-info", (info) => {
+      setMusicRoomInfo(info);
+    });
+
     return () => {
       socket.off("receive-message");
       socket.off("room-size");
       socket.off("receive-typing");
+      socket.off("music-room-info");
     };
   }, []);
 
@@ -208,6 +214,7 @@ const ChatRoom = ({ navigation, route }) => {
             roomName,
             roomType: _roomType,
           }}
+          musicRoomInfo={musicRoomInfo}
         />
       </Modalize>
       {Platform.OS === "ios" && <Loading show={loading} />}

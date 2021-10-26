@@ -41,10 +41,11 @@ const MusicScreen = ({ navigation, route }) => {
     bpm: null,
     notes: [],
   });
+  const [triggerNote, setTriggerNote] = useState({});
   const [loading, setLoading] = useState(false);
   const modalizeRef = useRef(null);
 
-  const { entry, type, roomId } = route.params;
+  const { entry, type, roomId, host } = route.params;
 
   const {
     user: { user },
@@ -63,25 +64,24 @@ const MusicScreen = ({ navigation, route }) => {
             justifyContent: "space-between",
           }}
         >
-          {type === "live" && (
+          {type === "live" && host === user.uid && (
             <TouchableOpacity
               activeOpacity={0.5}
-              onPress={() => {
-                emitLiveEvent(false);
-                navigation.goBack();
-              }}
+              onPress={handleLeaveLive}
               style={{ ...styles.button, paddingLeft: 20 }}
             >
               <Ionicons name="exit-outline" size={24} color="white" />
             </TouchableOpacity>
           )}
-          <TouchableOpacity
-            activeOpacity={0.5}
-            onPress={handleModal}
-            style={{ ...styles.button, paddingLeft: 20 }}
-          >
-            <Ionicons name="ellipsis-horizontal" size={24} color="white" />
-          </TouchableOpacity>
+          {(type !== "live" || host === user.uid) && (
+            <TouchableOpacity
+              activeOpacity={0.5}
+              onPress={handleModal}
+              style={{ ...styles.button, paddingLeft: 20 }}
+            >
+              <Ionicons name="ellipsis-horizontal" size={24} color="white" />
+            </TouchableOpacity>
+          )}
         </View>
       ),
     });
@@ -150,23 +150,78 @@ const MusicScreen = ({ navigation, route }) => {
     }
   }, [isRecording]);
 
+  useEffect(() => {
+    setTime(1);
+  }, [start]);
+
   // handle live mode socket
   useEffect(() => {
-    emitLiveEvent(true);
-  }, [packIndex, start, mode, bpm]);
+    if (host === user.uid) {
+      emitLiveEvent({
+        packIndex,
+        bpm,
+        start,
+        mode,
+        live: true,
+      });
+    }
 
-  const emitLiveEvent = (status) => {
+    if (type === "live") {
+      socket.on(
+        "music-room-info",
+        ({ info: { isPlaying, mode, packIndex, bpm } }) => {
+          setStart(isPlaying);
+          setMode(mode);
+          setPackIndex(packIndex);
+          setBpm(bpm);
+        }
+      );
+
+      socket.emit(
+        "get-music-room",
+        roomId,
+        ({ info: { isPlaying, mode, packIndex, bpm } }) => {
+          setStart(isPlaying);
+          setMode(mode);
+          setPackIndex(packIndex);
+          setBpm(bpm);
+        }
+      );
+
+      socket.on("receive-music-note", ({ row, col, active }) => {
+        console.log({
+          row,
+          col,
+          active,
+        });
+        // setTriggerNote({
+        //   row,
+        //   col,
+        //   active,
+        // });
+      });
+
+      return () => {
+        socket.off("music-room-info");
+        socket.off("receive-music-note");
+      };
+    }
+  }, []);
+
+  const emitLiveEvent = ({ packIndex, bpm, start, mode, live }) => {
     if (type === "live") {
       socket.emit(
         "send-music-room",
         {
           pack: PACKS[packIndex].name,
+          packIndex: packIndex,
           bpm: bpm,
           isPlaying: start,
           mode: mode,
-          isOpen: status,
+          isOpen: live,
         },
-        roomId
+        roomId,
+        host
       );
     }
   };
@@ -177,6 +232,15 @@ const MusicScreen = ({ navigation, route }) => {
 
   const handleModalClose = () => {
     setBpm(selectedBpm);
+    if (host === user.uid) {
+      emitLiveEvent({
+        packIndex,
+        bpm: selectedBpm,
+        start,
+        mode: mode,
+        live: true,
+      });
+    }
   };
 
   const handleRecord = ({ row, col, active }) => {
@@ -196,12 +260,41 @@ const MusicScreen = ({ navigation, route }) => {
     });
   };
 
+  const handleLeaveLive = () => {
+    Alert.alert("退出实时创作模式", "可以在房间空闲时重新进入创作模式", [
+      {
+        text: "取消",
+        onPress: () => {},
+        style: "cancel",
+      },
+      {
+        text: "退出",
+        onPress: async () => {
+          setLoading(true);
+          socket.emit("leave-music-room", roomId);
+          let timer = setTimeout(() => {
+            setLoading(false);
+            navigation.goBack();
+            clearTimeout(timer);
+          }, 500);
+        },
+        style: "destructive",
+      },
+    ]);
+  };
+
   return (
     <MusicContext.Provider
       value={{
-        handleRecord: handleRecord,
-        isRecording: isRecording,
-        time: time,
+        handleRecord,
+        isRecording,
+        time,
+        roomId,
+        bpm,
+        packIndex,
+        status: start ? "play" : "stop",
+        playType: type,
+        // triggerNote,
       }}
     >
       <Modalize
@@ -213,6 +306,7 @@ const MusicScreen = ({ navigation, route }) => {
       >
         <MuiscOption
           bpm={bpm}
+          // setBpm={setBpm}
           setSelectedBpm={setSelectedBpm}
           packIndex={packIndex}
           setPackIndex={setPackIndex}
@@ -234,8 +328,8 @@ const MusicScreen = ({ navigation, route }) => {
                 row={index + 1}
                 type={value.type}
                 padItems={value.padItems}
-                status={start ? "play" : "stop"}
-                bpm={bpm}
+                // status={start ? "play" : "stop"}
+                // bpm={bpm}
               />
             ))}
           {type !== ("preset" || "record") && (
@@ -249,6 +343,7 @@ const MusicScreen = ({ navigation, route }) => {
               setEffects={setEffects}
               effects={effects}
               setTime={setTime}
+              emitLiveEvent={emitLiveEvent}
             />
           )}
         </View>

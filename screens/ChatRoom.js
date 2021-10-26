@@ -40,7 +40,7 @@ const ChatRoom = ({ navigation, route }) => {
   const [messages, setMessages] = useState([]);
   const [typing, setTyping] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [musicRoomInfo, setMusicRoomInfo] = useState({});
+  const [musicRoomInfo, setMusicRoomInfo] = useState({ info: {}, host: "" });
   const [roomSize, setRoomSize] = useState(0);
   const [roomName, setRoomName] = useState(route?.params?.name ?? null);
 
@@ -63,37 +63,13 @@ const ChatRoom = ({ navigation, route }) => {
       headerRight: () => (
         <TouchableOpacity
           style={{ ...styles.button, paddingLeft: 20 }}
-          onPress={handleModal}
+          onPress={handleModalOpen}
         >
           <Ionicons name="ellipsis-horizontal" size={24} color="#efefef" />
         </TouchableOpacity>
       ),
     });
   }, [roomSize, isConnecting, roomName]);
-
-  const handleModal = () => {
-    Keyboard.dismiss();
-    modalizeRef.current?.open();
-  };
-
-  // useEffect(() => {
-  //   const subscription = AppState.addEventListener("change", (nextAppState) => {
-  //     if (
-  //       appState.current.match(/inactive|background/) &&
-  //       nextAppState === "active"
-  //     ) {
-  //       // console.log("App has come to the foreground!");
-  //     }
-
-  //     appState.current = nextAppState;
-  //     setAppStateVisible(appState.current);
-  //     // console.log("AppState", appState.current);
-  //   });
-
-  //   return () => {
-  //     subscription && subscription.remove();
-  //   };
-  // }, []);
 
   useEffect(() => {
     // if (appStateVisible !== "active") return;
@@ -129,8 +105,10 @@ const ChatRoom = ({ navigation, route }) => {
       setTyping(status);
     });
 
-    socket.on("music-room-info", (info) => {
-      setMusicRoomInfo(info);
+    socket.on("music-room-info", (room) => {
+      // if (room) {
+      setMusicRoomInfo(room);
+      // }
     });
 
     return () => {
@@ -196,6 +174,21 @@ const ChatRoom = ({ navigation, route }) => {
     );
   });
 
+  const handleModalOpen = () => {
+    socket.emit("get-music-room", roomId, (room) => {
+      // if (room) {
+      setMusicRoomInfo(room);
+      // }
+    });
+    Keyboard.dismiss();
+    modalizeRef.current?.open();
+  };
+
+  const handleModalClose = () => {
+    Keyboard.dismiss();
+    modalizeRef.current?.close();
+  };
+
   return (
     <>
       <Modalize
@@ -215,6 +208,7 @@ const ChatRoom = ({ navigation, route }) => {
             roomType: _roomType,
           }}
           musicRoomInfo={musicRoomInfo}
+          handleModalClose={handleModalClose}
         />
       </Modalize>
       {Platform.OS === "ios" && <Loading show={loading} />}

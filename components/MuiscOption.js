@@ -9,7 +9,13 @@ for (let i = 0; i < 120; i++) {
   allBpm.push(60 + i);
 }
 
-const MuiscOption = ({ bpm, setSelectedBpm, packIndex, setPackIndex }) => {
+const MuiscOption = ({
+  bpm,
+  setBpm,
+  setSelectedBpm,
+  packIndex,
+  setPackIndex,
+}) => {
   const [bpm1, setBpm1] = useState(bpm);
 
   return (

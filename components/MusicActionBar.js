@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Color from "../utils/Color";
+import MusicContext from "../context/MusicContext";
 
 const MusicActionBar = ({
   start,
@@ -19,22 +20,23 @@ const MusicActionBar = ({
   effect,
   setEffects,
   setTime,
+  emitLiveEvent,
 }) => {
+  const { packIndex, bpm } = useContext(MusicContext);
+
   const handleModeChange = (v) => {
     if (!mode || mode !== v) {
       setMode(v);
+      emitLiveEvent({ packIndex, bpm, start, mode: v, live: true });
     } else {
       setMode("");
+      emitLiveEvent({ packIndex, bpm, start, mode: "", live: true });
     }
   };
 
   const handleStartStop = () => {
-    if (start) {
-      setStart(false);
-      setTime(1);
-    } else {
-      setStart(true);
-    }
+    setStart(!start);
+    emitLiveEvent({ packIndex, bpm, start: !start, mode, live: true });
   };
 
   return (

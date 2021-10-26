@@ -3,7 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { PAD_COLOR } from "../utils/SampleData";
 import PadItem from "./PadItem";
 
-const PadList = ({ type, bpm, status, padItems, row }) => {
+const PadList = ({ type, padItems, row }) => {
   return (
     <View style={styles.list}>
       {padItems.map((value, index) => (
@@ -14,8 +14,6 @@ const PadList = ({ type, bpm, status, padItems, row }) => {
           type={type}
           color={PAD_COLOR[value.instrument]}
           displayName={value.displayName}
-          bpm={bpm}
-          status={status}
           sampleName={value.sampleName}
           steps={value.steps}
         />

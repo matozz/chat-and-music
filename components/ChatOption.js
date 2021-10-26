@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,6 +7,7 @@ import {
   Alert,
   View,
 } from "react-native";
+import AppContext from "../context/AppContext";
 import Color from "../utils/Color";
 
 const ChatOption = ({
@@ -15,7 +16,8 @@ const ChatOption = ({
   roomId,
   navigation,
   roomInfo,
-  musicRoomInfo,
+  musicRoomInfo: { info, host },
+  handleModalClose,
 }) => {
   const handleSendMusic = () => {
     navigation.navigate("Music", {
@@ -23,6 +25,7 @@ const ChatOption = ({
       packIndex: 0,
       entry: "编辑乐段",
     });
+    handleModalClose();
   };
 
   const handleLiveMusic = () => {
@@ -31,7 +34,9 @@ const ChatOption = ({
       packIndex: 0,
       entry: "实时创作",
       roomId: roomId,
+      host: host || user.uid,
     });
+    handleModalClose();
   };
 
   const handleLeaveChat = () => {
@@ -70,12 +75,14 @@ const ChatOption = ({
       <View>
         <Text style={styles.info}>RoomID: {roomInfo.roomId}</Text>
         <Text style={styles.info}>RoomName: {roomInfo.roomName}</Text>
-        <Text style={styles.info}>isOpen: {String(musicRoomInfo.isOpen)}</Text>
         <Text style={styles.info}>
-          isPlaying: {String(musicRoomInfo.isPlaying)}
+          RoomType: {roomInfo.roomType || "group"}
         </Text>
-        <Text style={styles.info}>nowPlaying: {musicRoomInfo.pack}</Text>
-        <Text style={styles.info}>bpm: {musicRoomInfo.bpm}</Text>
+        <Text style={styles.info}>isOpen: {String(info?.isOpen)}</Text>
+        <Text style={styles.info}>isPlaying: {String(info?.isPlaying)}</Text>
+        <Text style={styles.info}>nowPlaying: {info?.pack}</Text>
+        <Text style={styles.info}>bpm: {info?.bpm}</Text>
+        <Text style={styles.info}>host: {host}</Text>
       </View>
     </SafeAreaView>
   );
@@ -92,7 +99,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   button: {
-    marginVertical: 20,
+    marginVertical: 10,
     padding: 10,
     borderRadius: 10,
     backgroundColor: "#FF3B30",

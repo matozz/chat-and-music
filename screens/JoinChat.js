@@ -117,7 +117,7 @@ const JoinChat = ({ navigation }) => {
               style={styles.input}
               onChangeText={(text) => setRoomId(text)}
               value={roomId}
-              autoFocus
+              // autoFocus
               placeholderTextColor={"#858585"}
               placeholder="请输入房间号"
               keyboardAppearance="dark"

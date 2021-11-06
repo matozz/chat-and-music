@@ -6,7 +6,9 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "eject": "expo eject"
+    "eject": "expo eject",
+    "build-ios": "expo build:ios -t simulator",
+    "build-android": "expo build:android"
   },
   "dependencies": {
     "@react-native-picker/picker": "^2.1.0",

@@ -1,8 +1,10 @@
+import i18n from "../i18n";
+
 export const PACKS = [
   {
     id: "0",
     name: "Horizons",
-    genre: "Electronica",
+    genre: i18n.t("genre.electronica"),
     source: require("../assets/img/TCS.jpg"),
     padLists: [
       {
@@ -255,7 +257,7 @@ export const PACKS = [
   {
     id: "1",
     name: "Jay Chou",
-    genre: "Pop",
+    genre: i18n.t("genre.pop"),
     source: require("../assets/img/TCS.jpg"),
 
     padLists: [
@@ -509,7 +511,7 @@ export const PACKS = [
   {
     id: "2",
     name: "Neo Soul",
-    genre: "Trap",
+    genre: i18n.t("genre.trap"),
     source: require("../assets/img/TCS.jpg"),
 
     padLists: [
@@ -763,7 +765,7 @@ export const PACKS = [
   {
     id: "3",
     name: "Ambient Skies",
-    genre: "Experimental",
+    genre: i18n.t("genre.experimental"),
     source: require("../assets/img/TCS.jpg"),
     padLists: [
       {

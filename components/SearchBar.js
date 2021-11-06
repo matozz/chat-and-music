@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import i18n from "i18n-js";
 
 const SearchBar = () => {
   return (
@@ -12,7 +13,7 @@ const SearchBar = () => {
         // onChangeText={onChangeNumber}
         // value={number}
         placeholderTextColor={"#858585"}
-        placeholder="搜索"
+        placeholder={i18n.t("home.search")}
         keyboardAppearance="dark"
       />
     </View>

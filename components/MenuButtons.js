@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Alert } from "react-native";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Color from "../utils/Color";
 import AppContext from "../context/AppContext";
+import i18n from "../i18n";
 
 const BUTTONS = [
   {
@@ -10,13 +11,13 @@ const BUTTONS = [
       <MaterialCommunityIcons name="account-music" size={28} color="white" />
     ),
     color: Color.SystemOrange,
-    label: "创建房间",
+    label: i18n.t("home.actions.create"),
     nav: "CreateChat",
   },
   {
     icon: <MaterialIcons name="add-box" size={28} color="white" />,
     color: Color.SystemBlue,
-    label: "加入房间",
+    label: i18n.t("home.actions.join"),
     nav: "JoinChat",
   },
   {
@@ -24,13 +25,13 @@ const BUTTONS = [
       <MaterialCommunityIcons name="folder-music" size={28} color="white" />
     ),
     color: Color.SystemBlue,
-    label: "灵感",
+    label: i18n.t("home.actions.ideas"),
     nav: "Idea",
   },
   {
     icon: <MaterialCommunityIcons name="music-box" size={28} color="white" />,
     color: Color.SystemBlue,
-    label: "自由创作",
+    label: i18n.t("home.actions.playground"),
     nav: "Music",
   },
 ];
@@ -43,15 +44,21 @@ const MenuButtons = ({ navigation }) => {
   const handleNavigation = (name) => {
     if (name === "Music") {
       navigation.navigate(name, {
-        entry: "自由创作",
+        entry: i18n.t("music.title"),
       });
     } else if (name === "Idea") {
       navigation.navigate(name);
     } else {
       if (socketState != "connected") {
-        Alert.alert("操作失败", "请检查 Socket 连接状态");
+        Alert.alert(
+          i18n.t("notification.action_failed"),
+          i18n.t("notification.socket_error")
+        );
       } else if (firebaseState != "connected") {
-        Alert.alert("操作失败", "请检查登录状态");
+        Alert.alert(
+          i18n.t("notification.action_failed"),
+          i18n.t("notification.database_error")
+        );
       } else {
         navigation.navigate(name);
       }

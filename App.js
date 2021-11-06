@@ -6,6 +6,7 @@ import { auth } from "./firebase";
 import Navigation from "./Navigation";
 import SocketContext, { socket } from "./context/SocketContext";
 import Color from "./utils/Color";
+import i18n from "./i18n";
 
 export default function App() {
   // const [curUser, setCurUser] = useState(auth.currentUser);
@@ -51,7 +52,7 @@ export default function App() {
     socket.on("connect", () => {
       console.log("[SERVER]: connected");
       showMessage({
-        message: "Socket 服务连接成功",
+        message: i18n.t("notification.connect_success"),
         type: "info",
         icon: "success",
         style: {
@@ -64,7 +65,7 @@ export default function App() {
 
     socket.once("connect_error", () => {
       showMessage({
-        message: "Socket 服务连接失败，请检查网络连接状态",
+        message: i18n.t("notification.connect_error"),
         type: "info",
         icon: "warning",
         style: {

@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import Color from "../utils/Color";
 import { PACKS } from "../utils/MusicPacks";
+import i18n from "../i18n";
 
 let allBpm = [];
 for (let i = 0; i < 120; i++) {
@@ -20,7 +21,7 @@ const MuiscOption = ({
 
   return (
     <View style={{ marginVertical: 20 }}>
-      <Text style={styles.title}>BPM（每分钟节拍数）</Text>
+      <Text style={styles.title}>{i18n.t("music.options.bpm")}</Text>
       <Picker
         selectedValue={String(bpm1)}
         onValueChange={(itemValue, itemIndex) => {
@@ -38,7 +39,7 @@ const MuiscOption = ({
           />
         ))}
       </Picker>
-      <Text style={styles.title}>素材包</Text>
+      <Text style={styles.title}>{i18n.t("music.options.pack")}</Text>
       <View style={styles.packBox}>
         {PACKS.map((value, index) => (
           <TouchableOpacity

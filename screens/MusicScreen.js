@@ -25,6 +25,7 @@ import { db, firebase } from "../firebase";
 import AppContext from "../context/AppContext";
 import { useInterval } from "../hooks/useInterval";
 import SocketContext from "../context/SocketContext";
+import i18n from "../i18n";
 
 const MusicScreen = ({ navigation, route }) => {
   const [time, setTime] = useState(1);
@@ -317,9 +318,15 @@ const MusicScreen = ({ navigation, route }) => {
         {Platform.OS === "ios" && <Loading show={loading} />}
         <View style={styles.container}>
           <View style={styles.infobox}>
-            <Text style={styles.info}>当前素材包: {PACKS[packIndex].name}</Text>
-            <Text style={styles.info}>速度: {bpm}</Text>
-            <Text style={styles.info}>节拍: {((time - 1) % 4) + 1}</Text>
+            <Text style={styles.info}>
+              {i18n.t("music.info.pack")}: {PACKS[packIndex].name}
+            </Text>
+            <Text style={styles.info}>
+              {i18n.t("music.info.speed")}: {bpm}
+            </Text>
+            <Text style={styles.info}>
+              {i18n.t("music.info.beats")}: {((time - 1) % 4) + 1}
+            </Text>
           </View>
           {typeof PACKS[packIndex].padLists != "undefined" &&
             PACKS[packIndex]?.padLists.map((value, index) => (

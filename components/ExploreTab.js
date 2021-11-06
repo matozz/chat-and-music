@@ -13,6 +13,7 @@ import AppContext from "../context/AppContext";
 import SocketContext from "../context/SocketContext";
 import Color from "../utils/Color";
 import { PACKS, PRESETS } from "../utils/MusicPacks";
+import i18n from "../i18n";
 
 const ExploreTab = ({ navigation }) => {
   const [connection, setConnection] = useState(false);
@@ -108,7 +109,7 @@ const ExploreTab = ({ navigation }) => {
         </Text>
       </View> */}
       <View style={styles.section}>
-        <Text style={styles.title}>最新素材包</Text>
+        <Text style={styles.title}>{i18n.t("home.subTitle1")}</Text>
         <FlatList
           data={PACKS}
           horizontal
@@ -118,7 +119,7 @@ const ExploreTab = ({ navigation }) => {
         />
       </View>
       <View style={{ ...styles.section, marginTop: 0 }}>
-        <Text style={styles.title}>热门预制</Text>
+        <Text style={styles.title}>{i18n.t("home.subTitle2")}</Text>
         <View style={styles.presetList}>{PRESETS.map(renderPresetRow)}</View>
       </View>
     </View>

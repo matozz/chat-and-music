@@ -14,6 +14,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import i18n from "../i18n";
 import { Ionicons } from "@expo/vector-icons";
 import ContactsList from "../components/ContactsList";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
@@ -34,7 +35,7 @@ const IdeaScreen = ({ navigation }) => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: "灵感",
+      headerTitle: i18n.t("ideas.title"),
       headerBackTitle: "",
       headerRight: () => (
         <TouchableOpacity
@@ -162,7 +163,7 @@ const IdeaScreen = ({ navigation }) => {
         {Platform.OS === "ios" && <Loading show={loading} />}
         <View style={styles.controlbar}>
           <SegmentedControl
-            values={["热门", "我的灵感"]}
+            values={[i18n.t("ideas.tabs.popular"), i18n.t("ideas.tabs.my")]}
             selectedIndex={selectedIndex}
             appearance={"dark"}
             onChange={handleControlChange}

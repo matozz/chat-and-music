@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import i18n from "i18n-js";
 // import ContactsList from "../components/ContactsList";
 // import Header from "../components/Header";
 import MenuButtons from "../components/MenuButtons";
@@ -25,7 +26,7 @@ import SocketContext from "../context/SocketContext";
 import ExploreTab from "../components/ExploreTab";
 import AppContext from "../context/AppContext";
 import Color from "../utils/Color";
-import { showMessage } from "react-native-flash-message";
+// import { showMessage } from "react-native-flash-message";
 
 const CONNECTION_STATE = (handler) => ({
   connecting: {
@@ -50,8 +51,6 @@ const Home = ({ navigation }) => {
     user: { loginState, user },
     connectionState: { socketState, firebaseState, connectionId },
   } = useContext(AppContext);
-
-  const socket = useContext(SocketContext);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -90,7 +89,7 @@ const Home = ({ navigation }) => {
           <Ionicons name="ios-person-outline" size={24} color="#efefef" />
         </TouchableOpacity>
       ),
-      headerTitle: "Music & Chat",
+      headerTitle: i18n.t("home.title"),
       headerTitleAlign: "center",
     });
   });

@@ -15,6 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Color from "../utils/Color";
 import { formatDate, formatDuration } from "../utils/Translator";
 import { PACKS } from "../utils/MusicPacks";
+import i18n from "../i18n";
 
 const ContactsList = ({
   data,
@@ -29,7 +30,11 @@ const ContactsList = ({
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     ActionSheetIOS.showActionSheetWithOptions(
       {
-        options: ["取消", "发布", "删除"],
+        options: [
+          i18n.t("ideas.actions.cancel"),
+          i18n.t("ideas.actions.send"),
+          i18n.t("ideas.actions.del"),
+        ],
         title: name,
         destructiveButtonIndex: 2,
         cancelButtonIndex: 0,
@@ -50,7 +55,11 @@ const ContactsList = ({
   const handlePressRecord = (index, pack) => {
     let packIndex = PACKS.findIndex((item) => item.name === pack);
     if (packIndex !== -1) {
-      handleNavigate("record", `New Recoding #${index + 1}`, packIndex);
+      handleNavigate(
+        "record",
+        `${i18n.t("ideas.idea.title")} #${index + 1}`,
+        packIndex
+      );
     } else {
       alert("操作失败，素材包不存在！");
     }
@@ -69,7 +78,7 @@ const ContactsList = ({
       onLongPress={() =>
         type === "myIdea" &&
         handleRecordingOptions({
-          name: `New Recoding #${index + 1}`,
+          name: `${i18n.t("ideas.idea.title")} #${index + 1}`,
           id,
           index,
         })
@@ -83,16 +92,19 @@ const ContactsList = ({
       <View style={styles.content}>
         <View style={styles.header}>
           {type === "myIdea" ? (
-            <Text style={styles.title}>New Recoding #{index + 1}</Text>
+            <Text style={styles.title}>
+              {i18n.t("ideas.idea.title")} #{index + 1}
+            </Text>
           ) : (
             <Text style={styles.title}>
-              New Recoding #{index + 1} - {userData.displayName}
+              {i18n.t("ideas.idea.title")} #{index + 1} - {userData.displayName}
             </Text>
           )}
         </View>
         <View style={styles.footer}>
           <Text style={styles.date}>
-            {formatDate(createTime.toDate(), "MM-dd")} from {pack}
+            {formatDate(createTime.toDate(), "MM-dd")}{" "}
+            {i18n.t("ideas.idea.from")} {pack}
           </Text>
           <Text style={styles.desc}>{formatDuration(duration)}</Text>
         </View>

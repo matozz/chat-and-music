@@ -7,10 +7,12 @@ export const insertMessage = async ({ roomId, user, messages }) => {
       .where("roomId", "==", roomId)
       .get();
 
-    delete messages[0]._id;
+    const _message = { ...messages[0] };
+
+    delete _message._id;
 
     await query.docs[0].ref.collection("messages").add({
-      ...messages[0],
+      ..._message,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       user: {
         _id: user.uid,

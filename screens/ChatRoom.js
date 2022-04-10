@@ -190,10 +190,10 @@ const ChatRoom = ({ navigation, route }) => {
   //   ]);
   // }, []);
 
-  const onSend = useCallback(async (messages = []) => {
+  const onSend = useCallback((messages = []) => {
     socket.emit("send-message", messages, roomId);
     handleNewMessage(messages);
-    await insertMessage({ roomId, user, messages });
+    insertMessage({ roomId, user, messages });
   }, []);
 
   const onTyping = useCallback((msg) => {

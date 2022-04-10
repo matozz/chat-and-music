@@ -14,7 +14,6 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import { GiftedChat } from "react-native-gifted-chat";
 import { Ionicons } from "@expo/vector-icons";
 import AppContext from "../context/AppContext";
 import "react-native-get-random-values";
@@ -22,25 +21,42 @@ import SocketContext from "../context/SocketContext";
 import { Modalize } from "react-native-modalize";
 import ChatOption from "../components/ChatOption";
 import Loading from "../components/Loading";
+import { getRoomInfoById } from "../db/room";
+import { getEarlyMessagesById, insertMessage } from "../db/messages";
+import { GiftedChat } from "@matoz/react-native-gifted-chat";
 
 const parsePatterns = (_linkStyle) => {
   return [
     {
-      pattern: /#(\w+)/,
+      pattern: /# (\w+)/,
       style: { textDecorationLine: "underline", color: "darkorange" },
-      onPress: () => Linking.openURL("https://matoz.live"),
+      onPress: () => Linking.openURL("https://matoz.tech"),
     },
   ];
+};
+
+const PUBLIC_MSG = {
+  _id: "__PUBLIC__MSG__",
+  text: `欢迎进入公共聊天室👏！消息将会对所有用户广播！`,
+  createdAt: new Date(),
+  system: true,
+};
+
+const EARLY_MSG = {
+  _id: "__EARLY__MSG__",
+  text: `以上是历史消息！`,
+  createdAt: new Date(),
+  system: true,
 };
 
 const ChatRoom = ({ navigation, route }) => {
   // const appState = useRef(AppState.currentState);
   // const [appStateVisible, setAppStateVisible] = useState(appState.current);
-  const [isConnecting, setIsConnecting] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(true);
   const [messages, setMessages] = useState([]);
   const [typing, setTyping] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [musicRoomInfo, setMusicRoomInfo] = useState({ info: {}, host: "" });
+  const [musicRoomInfo, setMusicRoomInfo] = useState({});
   const [roomSize, setRoomSize] = useState(0);
   const [roomName, setRoomName] = useState(route?.params?.name ?? null);
 
@@ -52,12 +68,13 @@ const ChatRoom = ({ navigation, route }) => {
 
   const socket = useContext(SocketContext);
 
-  const { roomId, _roomType } = route.params;
+  const { roomId, isNewCreate } = route.params;
 
   useLayoutEffect(() => {
+    const { name, isPublic, memberNum } = musicRoomInfo;
     navigation.setOptions({
       headerTitle: !isConnecting
-        ? `${roomName ? roomName : "Room"} (${roomSize})`
+        ? `${name}${!isPublic ? `(${roomSize}/${memberNum})` : ""} `
         : "Connecting",
       headerBackTitle: "",
       headerRight: () => (
@@ -69,29 +86,48 @@ const ChatRoom = ({ navigation, route }) => {
         </TouchableOpacity>
       ),
     });
-  }, [roomSize, isConnecting, roomName]);
+  }, [roomSize, isConnecting, roomName, musicRoomInfo]);
 
   useEffect(() => {
     // if (appStateVisible !== "active") return;
     // setIsConnecting(true);
-    if (roomId) {
-      socket.emit(
-        "join-room",
-        { roomId, roomName },
-        user,
-        (message, roomName, roomSize) => {
-          handleNewMessage(message);
-          setRoomName(roomName);
-          setRoomSize(roomSize);
-        }
-      );
-    } else {
-      socket.emit("join-public-room", (message, roomName, roomSize) => {
-        handleNewMessage(message);
-        setRoomName(roomName);
+
+    (async () => {
+      const result = await getRoomInfoById({ roomId });
+      setIsConnecting(false);
+      setMusicRoomInfo(result.data);
+
+      const isPublic = result.data.isPublic;
+      const msg = await getEarlyMessagesById({ roomId });
+      setMessages([...(isPublic ? [PUBLIC_MSG] : []), EARLY_MSG, ...msg.data]);
+    })();
+
+    socket.emit(
+      "join-room",
+      { roomId, isNewCreate },
+      user,
+      async (roomSize) => {
         setRoomSize(roomSize);
-      });
-    }
+      }
+    );
+    // if (roomId) {
+    //   socket.emit(
+    //     "join-room",
+    //     { roomId, roomName },
+    //     user,
+    //     (message, roomName, roomSize) => {
+    //       handleNewMessage(message);
+    //       setRoomName(roomName);
+    //       setRoomSize(roomSize);
+    //     }
+    //   );
+    // } else {
+    //   socket.emit("join-public-room", (message, roomName, roomSize) => {
+    //     handleNewMessage(message);
+    //     setRoomName(roomName);
+    //     setRoomSize(roomSize);
+    //   });
+    // }
 
     socket.on("receive-message", (msg) => {
       handleNewMessage(msg);
@@ -105,11 +141,11 @@ const ChatRoom = ({ navigation, route }) => {
       setTyping(status);
     });
 
-    socket.on("music-room-info", (room) => {
-      // if (room) {
-      setMusicRoomInfo(room);
-      // }
-    });
+    // socket.on("music-room-info", (room) => {
+    //   // if (room) {
+    //   setMusicRoomInfo(room);
+    //   // }
+    // });
 
     return () => {
       socket.off("receive-message");
@@ -119,44 +155,45 @@ const ChatRoom = ({ navigation, route }) => {
     };
   }, []);
 
-  useEffect(() => {
-    setMessages([
-      {
-        _id: 1,
-        text: "How did you know this app?",
-        createdAt: new Date(),
-        quickReplies: {
-          type: "checkbox", // or 'radio',
-          values: [
-            {
-              title: "Friend",
-              value: "friend",
-            },
-            {
-              title: "By Accident",
-              value: "accident",
-            },
-            {
-              title: "Yes. What?",
-              value: "yes",
-            },
-            {
-              title: "APP Store",
-              value: "store",
-            },
-          ],
-        },
-        user: {
-          _id: 1,
-          name: "A D",
-        },
-      },
-    ]);
-  }, []);
+  // useEffect(() => {
+  //   setMessages([
+  //     {
+  //       _id: 1,
+  //       text: "How did you know this app?",
+  //       createdAt: new Date(),
+  //       quickReplies: {
+  //         type: "checkbox", // or 'radio',
+  //         values: [
+  //           {
+  //             title: "Friend",
+  //             value: "friend",
+  //           },
+  //           {
+  //             title: "By Accident",
+  //             value: "accident",
+  //           },
+  //           {
+  //             title: "Yes. What?",
+  //             value: "yes",
+  //           },
+  //           {
+  //             title: "APP Store",
+  //             value: "store",
+  //           },
+  //         ],
+  //       },
+  //       user: {
+  //         _id: 1,
+  //         name: "A D",
+  //       },
+  //     },
+  //   ]);
+  // }, []);
 
-  const onSend = useCallback((messages = []) => {
+  const onSend = useCallback(async (messages = []) => {
     socket.emit("send-message", messages, roomId);
     handleNewMessage(messages);
+    await insertMessage({ roomId, user, messages });
   }, []);
 
   const onTyping = useCallback((msg) => {
@@ -175,11 +212,11 @@ const ChatRoom = ({ navigation, route }) => {
   });
 
   const handleModalOpen = () => {
-    socket.emit("get-music-room", roomId, (room) => {
-      // if (room) {
-      setMusicRoomInfo(room);
-      // }
-    });
+    // socket.emit("get-music-room", roomId, (room) => {
+    //   // if (room) {
+    //   setMusicRoomInfo(room);
+    //   // }
+    // });
     Keyboard.dismiss();
     modalizeRef.current?.open();
   };
@@ -205,7 +242,6 @@ const ChatRoom = ({ navigation, route }) => {
           roomInfo={{
             roomId,
             roomName,
-            roomType: _roomType,
           }}
           musicRoomInfo={musicRoomInfo}
           handleModalClose={handleModalClose}

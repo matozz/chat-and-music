@@ -11,6 +11,8 @@ import {
 import Loading from "../components/Loading";
 import AppContext from "../context/AppContext";
 import SocketContext from "../context/SocketContext";
+import { createRoom } from "../db/room";
+import { db, firebase } from "../firebase";
 import Color from "../utils/Color";
 
 const CreateChat = ({ navigation }) => {
@@ -24,7 +26,7 @@ const CreateChat = ({ navigation }) => {
 
   const socket = useContext(SocketContext);
 
-  const joinRoom = () => {
+  const joinRoom = async () => {
     if (!user) {
       Alert.prompt(
         "Username Required",
@@ -47,14 +49,21 @@ const CreateChat = ({ navigation }) => {
     } else {
       setLoading(true);
       Keyboard.dismiss();
-      socket.emit("check-room", roomId, (status) => {
-        if (status) {
-          handleNavigate();
-        } else {
-          alert("房间已存在！");
-          setLoading(false);
-        }
-      });
+      // socket.emit("check-room", roomId, (status) => {
+      //   if (status) {
+      //     handleNavigate();
+      //   } else {
+      //     alert("房间已存在！");
+      //     setLoading(false);
+      //   }
+      // });
+      const result = await createRoom({ roomId, name, user });
+      setLoading(false);
+      if (result.code === 200) {
+        handleNavigate();
+      } else {
+        alert(result.message);
+      }
     }
   };
 

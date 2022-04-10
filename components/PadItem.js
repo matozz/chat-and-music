@@ -43,10 +43,12 @@ const PadItem = React.memo(
           shouldCorrectPitch: true,
           pitchCorrectionQuality: Audio.PitchCorrectionQuality.High,
         };
+
         const { sound } = await Audio.Sound.createAsync(
           SOUND_SAMPLES[sampleName].uri,
           initialStatus
         );
+
         setSound1(sound);
         setLoading(false);
       };

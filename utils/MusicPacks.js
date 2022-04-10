@@ -5,7 +5,7 @@ export const PACKS = [
     id: "0",
     name: "Horizons",
     genre: i18n.t("genre.electronica"),
-    source: require("../assets/img/TCS.jpg"),
+    source: require("../assets/img/Cover1.jpg"),
     padLists: [
       {
         type: "loop",
@@ -258,8 +258,7 @@ export const PACKS = [
     id: "1",
     name: "Jay Chou",
     genre: i18n.t("genre.pop"),
-    source: require("../assets/img/TCS.jpg"),
-
+    source: require("../assets/img/Cover3.jpg"),
     padLists: [
       {
         type: "loop",
@@ -512,8 +511,7 @@ export const PACKS = [
     id: "2",
     name: "Neo Soul",
     genre: i18n.t("genre.trap"),
-    source: require("../assets/img/TCS.jpg"),
-
+    source: require("../assets/img/Cover4.jpg"),
     padLists: [
       {
         type: "loop",
@@ -766,7 +764,7 @@ export const PACKS = [
     id: "3",
     name: "Ambient Skies",
     genre: i18n.t("genre.experimental"),
-    source: require("../assets/img/TCS.jpg"),
+    source: require("../assets/img/Cover2.jpg"),
     padLists: [
       {
         type: "loop",
@@ -1023,7 +1021,7 @@ export const PRESETS = [
     name: "Horizons",
     packIndex: 0,
     title: "Alternative",
-    source: require("../assets/img/TCS.jpg"),
+    source: require("../assets/img/Cover1.jpg"),
     color: "#6d1ca6",
   },
   {
@@ -1031,7 +1029,7 @@ export const PRESETS = [
     name: "Neo Soul",
     packIndex: 2,
     title: "To The Sky",
-    source: require("../assets/img/TCS.jpg"),
+    source: require("../assets/img/Cover2.jpg"),
     color: "#9b2542",
   },
   {
@@ -1039,7 +1037,7 @@ export const PRESETS = [
     name: "Horizons",
     packIndex: 0,
     title: "Closer",
-    source: require("../assets/img/TCS.jpg"),
+    source: require("../assets/img/Cover4.jpg"),
     color: "#aa7e14",
   },
   {
@@ -1047,7 +1045,7 @@ export const PRESETS = [
     name: "Jay Chou",
     packIndex: 1,
     title: "QingTian",
-    source: require("../assets/img/TCS.jpg"),
+    source: require("../assets/img/Cover5.jpg"),
     color: "#102ba7",
   },
   {
@@ -1055,7 +1053,7 @@ export const PRESETS = [
     name: "Jay Chou",
     packIndex: 1,
     title: "Easy Love",
-    source: require("../assets/img/TCS.jpg"),
+    source: require("../assets/img/Cover1.jpg"),
     color: "#9b2542",
   },
 ];

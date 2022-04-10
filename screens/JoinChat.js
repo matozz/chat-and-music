@@ -15,6 +15,14 @@ import AppContext from "../context/AppContext";
 import Color from "../utils/Color";
 import { AntDesign } from "@expo/vector-icons";
 import SocketContext from "../context/SocketContext";
+import { db } from "../firebase";
+import { getRoomList, joinRoomById } from "../db/room";
+
+const PUBLIC_ROOM = {
+  name: "公共房间",
+  roomId: "__PUBLIC",
+  isPublic: true,
+};
 
 const JoinChat = ({ navigation }) => {
   const [roomId, setRoomId] = useState("");
@@ -28,36 +36,18 @@ const JoinChat = ({ navigation }) => {
   const socket = useContext(SocketContext);
 
   useEffect(() => {
-    socket.emit("user-active-room", (rooms) => {
-      // console.log(rooms);
-      setRooms(rooms);
-    });
+    // socket.emit("user-active-room", (rooms) => {
+    //   // console.log(rooms);
+    //   setRooms(rooms);
+    // });
+
+    (async () => {
+      const result = await getRoomList({ user });
+      setRooms([PUBLIC_ROOM, ...result.data]);
+    })();
   }, []);
 
-  const renderPresetRow = ({ id, name, users, _private, _public }, index) => (
-    <TouchableOpacity
-      key={id}
-      style={styles.chat}
-      activeOpacity={0.5}
-      onPress={() => {
-        joinRoom(id, _private ? "private" : "public");
-      }}
-    >
-      <View style={styles.chatInfo}>
-        {_private || _public ? (
-          <Text style={styles.chatName}>{_public ? "公共" : "私人"}房间</Text>
-        ) : (
-          <Text style={styles.chatName}>{name}</Text>
-        )}
-        {!_public && <Text style={styles.chatUser}> ({users.length})</Text>}
-      </View>
-      <View style={styles.joinIcon}>
-        <AntDesign name="arrowright" size={24} color={Color.SystemWhite2} />
-      </View>
-    </TouchableOpacity>
-  );
-
-  const joinRoom = (id, type) => {
+  const joinRoom = async ({ roomId, isByRoomId }) => {
     if (!user) {
       Alert.prompt(
         "Username Required",
@@ -80,27 +70,49 @@ const JoinChat = ({ navigation }) => {
     } else {
       setLoading(true);
       Keyboard.dismiss();
-      if (!type) {
-        socket.emit("check-room", id, (status) => {
-          if (status) {
-            alert("房间不存在！");
-            setLoading(false);
-          } else {
-            handleNavigate(id);
-          }
-        });
+      if (isByRoomId) {
+        const result = await joinRoomById({ roomId, user });
+        if (result.code === 200) {
+          handleNavigate(roomId, isNewCreate);
+        } else {
+          alert(result.message);
+          setLoading(false);
+        }
       } else {
-        handleNavigate(id, type);
+        handleNavigate(roomId);
       }
     }
   };
 
-  const handleNavigate = (id, type) => {
+  const renderPresetRow = ({ roomId, name, memberNum, isPublic }, index) => (
+    <TouchableOpacity
+      key={roomId}
+      style={styles.chat}
+      activeOpacity={0.5}
+      onPress={() => {
+        joinRoom({ roomId });
+      }}
+    >
+      <View style={styles.chatInfo}>
+        {isPublic ? (
+          <Text style={styles.chatName}>公共房间</Text>
+        ) : (
+          <Text style={styles.chatName}>{name}</Text>
+        )}
+        {!isPublic && <Text style={styles.chatUser}> ({memberNum})</Text>}
+      </View>
+      <View style={styles.joinIcon}>
+        <AntDesign name="arrowright" size={24} color={Color.SystemWhite2} />
+      </View>
+    </TouchableOpacity>
+  );
+
+  const handleNavigate = (roomId, isNewCreate) => {
     const timer = setTimeout(() => {
       navigation.goBack();
       navigation.navigate("ChatRoom", {
-        roomId: id,
-        _roomType: type,
+        roomId,
+        isNewCreate,
       });
       clearTimeout(timer);
     }, 500);
@@ -126,7 +138,7 @@ const JoinChat = ({ navigation }) => {
         </View>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => joinRoom(roomId)}
+          onPress={() => joinRoom({ roomId, isByRoomId: true })}
           activeOpacity={0.5}
         >
           <Text style={styles.buttonText}>加入</Text>

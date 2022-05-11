@@ -28,6 +28,7 @@ const JoinChat = ({ navigation }) => {
   const [roomId, setRoomId] = useState("");
   const [loading, setLoading] = useState(false);
   const [rooms, setRooms] = useState([]);
+  const [loadRoom, setLoadRoom] = useState(true);
 
   const {
     user: { user, setUser },
@@ -42,8 +43,10 @@ const JoinChat = ({ navigation }) => {
     // });
 
     (async () => {
+      setLoadRoom(true);
       const result = await getRoomList({ user });
       setRooms([PUBLIC_ROOM, ...result.data]);
+      setLoadRoom(false);
     })();
   }, []);
 
@@ -73,7 +76,7 @@ const JoinChat = ({ navigation }) => {
       if (isByRoomId) {
         const result = await joinRoomById({ roomId, user });
         if (result.code === 200) {
-          handleNavigate(roomId, isNewCreate);
+          handleNavigate(roomId, true);
         } else {
           alert(result.message);
           setLoading(false);
@@ -120,7 +123,7 @@ const JoinChat = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {Platform.OS === "ios" && <Loading show={loading} />}
+      <Loading show={loading} />
       <ScrollView>
         <View style={styles.inputBox}>
           <View style={styles.inputContainer}>
@@ -146,7 +149,10 @@ const JoinChat = ({ navigation }) => {
 
         <View style={{ ...styles.section, marginTop: 0 }}>
           <Text style={styles.title}>我的房间</Text>
-          <View style={styles.chatList}>{rooms.map(renderPresetRow)}</View>
+          <View style={styles.chatList}>
+            <Loading show={loadRoom} block />
+            {rooms.map(renderPresetRow)}
+          </View>
         </View>
       </ScrollView>
     </View>

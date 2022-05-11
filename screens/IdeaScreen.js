@@ -160,7 +160,7 @@ const IdeaScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={{ height: "100%" }}>
-        {Platform.OS === "ios" && <Loading show={loading} />}
+        <Loading show={loading} />
         <View style={styles.controlbar}>
           <SegmentedControl
             values={[i18n.t("ideas.tabs.popular"), i18n.t("ideas.tabs.my")]}

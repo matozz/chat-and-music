@@ -37,20 +37,25 @@ const PadItem = React.memo(
     useEffect(() => {
       const getSound = async () => {
         setLoading(true);
-        console.log("Loading Sound");
+        // console.log("Loading Sound");
         const initialStatus = {
           rate: bpm / 105,
           shouldCorrectPitch: true,
           pitchCorrectionQuality: Audio.PitchCorrectionQuality.High,
         };
 
-        const { sound } = await Audio.Sound.createAsync(
-          SOUND_SAMPLES[sampleName].uri,
-          initialStatus
-        );
+        try {
+          const { sound } = await Audio.Sound.createAsync(
+            SOUND_SAMPLES[sampleName].uri,
+            initialStatus
+          );
 
-        setSound1(sound);
-        setLoading(false);
+          setSound1(sound);
+          setLoading(false);
+        } catch (error) {
+          setLoading(false);
+          console.log(error);
+        }
       };
       getSound();
     }, [bpm]);
@@ -70,10 +75,18 @@ const PadItem = React.memo(
       return sound1
         ? () => {
             console.log("Unloading Sound");
+            sound1 &&
+              sound1
+                .getStatusAsync()
+                .then((status) => {
+                  status.isPlaying && sound1.stopAsync();
+                })
+                .then(() => sound1.setPositionAsync(0))
+                .catch((err) => console.log(err));
             sound1.unloadAsync();
           }
         : undefined;
-    }, []);
+    }, [sound1]);
 
     useEffect(() => {
       // let { col, row, active } = triggerNote;
@@ -95,7 +108,8 @@ const PadItem = React.memo(
                 .then((status) => {
                   status.isPlaying && sound1.stopAsync();
                 })
-                .then(() => sound1.setPositionAsync(0));
+                .then(() => sound1.setPositionAsync(0))
+                .catch((err) => console.log(err));
           }
 
           return;
@@ -183,7 +197,13 @@ const PadItem = React.memo(
           }}
           activeOpacity={0.5}
         >
-          {loading && <ActivityIndicator size="small" style={styles.loader} />}
+          {loading && (
+            <ActivityIndicator
+              size="small"
+              style={styles.loader}
+              color="#fff"
+            />
+          )}
 
           {type === "loop" && (
             <View style={{ alignItems: "center" }}>

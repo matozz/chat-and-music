@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   Alert,
   Platform,
+  DeviceEventEmitter,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import PadList from "../components/PadList";
@@ -26,14 +27,26 @@ import AppContext from "../context/AppContext";
 import { useInterval } from "../hooks/useInterval";
 import SocketContext from "../context/SocketContext";
 import i18n from "../i18n";
+import {
+  closeMusicRoomById,
+  openMusicRoomById,
+  updateMusicRoomById,
+} from "../db/music";
 
 const MusicScreen = ({ navigation, route }) => {
+  const {
+    bpm: _bpm,
+    mode: _mode,
+    packIndex: _packIndex,
+    start: _start,
+  } = route?.params?.initConfig ?? {};
+
   const [time, setTime] = useState(1);
-  const [bpm, setBpm] = useState(105);
-  const [selectedBpm, setSelectedBpm] = useState(105);
-  const [packIndex, setPackIndex] = useState(route.params.packIndex || 0);
-  const [start, setStart] = useState(false);
-  const [mode, setMode] = useState("");
+  const [bpm, setBpm] = useState(_bpm ?? 105);
+  const [selectedBpm, setSelectedBpm] = useState(_bpm ?? 105);
+  const [packIndex, setPackIndex] = useState(_packIndex || 0);
+  const [start, setStart] = useState(_start ?? false);
+  const [mode, setMode] = useState(_mode ?? "");
   const [isRecording, setIsRecording] = useState(false);
   const [effects, setEffects] = useState({});
   const [recordTimeline, setRecordTimeline] = useState(null);
@@ -46,7 +59,7 @@ const MusicScreen = ({ navigation, route }) => {
   const [loading, setLoading] = useState(false);
   const modalizeRef = useRef(null);
 
-  const { entry, type, roomId, host } = route.params;
+  const { entry, type, roomId, isHost, isNewCreate } = route.params;
 
   const {
     user: { user },
@@ -65,7 +78,7 @@ const MusicScreen = ({ navigation, route }) => {
             justifyContent: "space-between",
           }}
         >
-          {type === "live" && host === user.uid && (
+          {type === "live" && isHost && (
             <TouchableOpacity
               activeOpacity={0.5}
               onPress={handleLeaveLive}
@@ -74,7 +87,7 @@ const MusicScreen = ({ navigation, route }) => {
               <Ionicons name="exit-outline" size={24} color="white" />
             </TouchableOpacity>
           )}
-          {(type !== "live" || host === user.uid) && (
+          {(type !== "live" || isHost) && (
             <TouchableOpacity
               activeOpacity={0.5}
               onPress={handleModal}
@@ -155,93 +168,122 @@ const MusicScreen = ({ navigation, route }) => {
     setTime(1);
   }, [start]);
 
-  // handle live mode socket
-  useEffect(() => {
-    if (host === user.uid) {
-      emitLiveEvent({
+  const emitLiveEvent = async ({ packIndex, bpm, start, mode, live }) => {
+    if (type === "live") {
+      const musicInfo = {
         packIndex,
         bpm,
         start,
         mode,
-        live: true,
-      });
-    }
-
-    if (type === "live") {
-      socket.on(
-        "music-room-info",
-        ({ info: { isPlaying, mode, packIndex, bpm } }) => {
-          setStart(isPlaying);
-          setMode(mode);
-          setPackIndex(packIndex);
-          setBpm(bpm);
-        }
-      );
-
-      socket.emit(
-        "get-music-room",
-        roomId,
-        ({ info: { isPlaying, mode, packIndex, bpm } }) => {
-          setStart(isPlaying);
-          setMode(mode);
-          setPackIndex(packIndex);
-          setBpm(bpm);
-        }
-      );
-
-      socket.on("receive-music-note", ({ row, col, active }) => {
-        console.log({
-          row,
-          col,
-          active,
-        });
-        // setTriggerNote({
-        //   row,
-        //   col,
-        //   active,
-        // });
-      });
-
-      return () => {
-        socket.off("music-room-info");
-        socket.off("receive-music-note");
       };
-    }
-  }, []);
-
-  const emitLiveEvent = ({ packIndex, bpm, start, mode, live }) => {
-    if (type === "live") {
-      socket.emit(
-        "send-music-room",
-        {
-          pack: PACKS[packIndex].name,
-          packIndex: packIndex,
-          bpm: bpm,
-          isPlaying: start,
-          mode: mode,
-          isOpen: live,
-        },
+      DeviceEventEmitter.emit("event.directUpdate", true, musicInfo);
+      socket.emit("update-music-room", roomId, true, musicInfo);
+      await updateMusicRoomById({
         roomId,
-        host
-      );
+        musicInfo,
+      });
     }
   };
+
+  // handle live mode socket
+  useEffect(() => {
+    (async () => {
+      const musicInfo = {
+        packIndex,
+        bpm,
+        start,
+        mode,
+      };
+
+      if (type === "live" && isNewCreate) {
+        socket.emit("update-music-room", roomId, true, musicInfo);
+        await openMusicRoomById({ roomId });
+        emitLiveEvent(musicInfo);
+      }
+    })();
+  }, [type]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      socket.on("receive-music-room", ({ musicMode, musicInfo }) => {
+        console.log(456);
+        if (!musicMode) {
+          Alert.alert(
+            "创作模式已关闭",
+            "请等待聊天室管理员开启",
+            [
+              {
+                text: "返回",
+                onPress: async () => {
+                  setLoading(true);
+                  let timer = setTimeout(() => {
+                    setLoading(false);
+                    navigation.goBack();
+                    clearTimeout(timer);
+                  }, 500);
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        }
+        if (musicMode && musicInfo) {
+          setStart(musicInfo?.start);
+          setMode(musicInfo?.mode);
+          setPackIndex(musicInfo?.packIndex);
+          setBpm(musicInfo?.bpm);
+        }
+      });
+    });
+
+    // socket.on("receive-music-note", ({ row, col, active }) => {
+    //   console.log({
+    //     row,
+    //     col,
+    //     active,
+    //   });
+    //   // setTriggerNote({
+    //   //   row,
+    //   //   col,
+    //   //   active,
+    //   // });
+    // });
+
+    return () => {
+      DeviceEventEmitter.removeAllListeners("event.directUpdate");
+      socket.off("receive-music-room");
+      socket.off("receive-music-note");
+    };
+  }, [type]);
 
   const handleModal = () => {
     modalizeRef.current?.open();
   };
 
-  const handleModalClose = () => {
+  const handleModalClose = async () => {
     setBpm(selectedBpm);
-    if (host === user.uid) {
-      emitLiveEvent({
-        packIndex,
-        bpm: selectedBpm,
-        start,
-        mode: mode,
-        live: true,
-      });
-    }
+
+    const musicInfo = {
+      packIndex,
+      bpm: selectedBpm,
+      start,
+      mode,
+    };
+    DeviceEventEmitter.emit("event.directUpdate", true, musicInfo);
+    socket.emit("update-music-room", roomId, true, musicInfo);
+    await updateMusicRoomById({
+      roomId,
+      musicInfo,
+    });
+    // if (isHost === user.uid) {
+    //   emitLiveEvent({
+    //     packIndex,
+    //     bpm: selectedBpm,
+    //     start,
+    //     mode: mode,
+    //     live: true,
+    //   });
+    // }
   };
 
   const handleRecord = ({ row, col, active }) => {
@@ -262,17 +304,19 @@ const MusicScreen = ({ navigation, route }) => {
   };
 
   const handleLeaveLive = () => {
-    Alert.alert("退出实时创作模式", "可以在房间空闲时重新进入创作模式", [
+    Alert.alert("关闭实时创作模式", "聊天室成员将无法使用创作模式", [
       {
         text: "取消",
         onPress: () => {},
         style: "cancel",
       },
       {
-        text: "退出",
+        text: "关闭",
         onPress: async () => {
           setLoading(true);
-          socket.emit("leave-music-room", roomId);
+          await closeMusicRoomById({ roomId });
+          DeviceEventEmitter.emit("event.directUpdate", false, {});
+          socket.emit("update-music-room", roomId, false);
           let timer = setTimeout(() => {
             setLoading(false);
             navigation.goBack();
@@ -315,7 +359,7 @@ const MusicScreen = ({ navigation, route }) => {
       </Modalize>
 
       <View style={{ backgroundColor: "#111111" }}>
-        {Platform.OS === "ios" && <Loading show={loading} />}
+        <Loading show={loading} />
         <View style={styles.container}>
           <View style={styles.infobox}>
             <Text style={styles.info}>

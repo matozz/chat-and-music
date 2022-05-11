@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import Color from "../utils/Color";
@@ -18,6 +18,8 @@ const MuiscOption = ({
   setPackIndex,
 }) => {
   const [bpm1, setBpm1] = useState(bpm);
+
+  useEffect(() => setBpm1(bpm), [bpm]);
 
   return (
     <View style={{ marginVertical: 20 }}>

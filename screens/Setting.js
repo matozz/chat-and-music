@@ -105,9 +105,21 @@ const Setting = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {Platform.OS === "ios" && <Loading show={loading} />}
+      <Loading show={loading} />
       {user.uid ? (
         <>
+          <View style={styles.inputBox}>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>UserID</Text>
+              <TextInput
+                style={styles.input}
+                value={user.uid}
+                autoFocus
+                placeholderTextColor={"#858585"}
+                keyboardAppearance="dark"
+              />
+            </View>
+          </View>
           <View style={styles.inputBox}>
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Username</Text>
@@ -135,6 +147,7 @@ const Setting = ({ navigation }) => {
           <Text style={styles.buttonText}>Log In</Text>
         </TouchableOpacity>
       )}
+      <Text style={{ color: "white", textAlign: "center" }}>v0.0.2</Text>
     </View>
   );
 };
@@ -153,7 +166,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 10,
   },
-  inputBox: { backgroundColor: "#303030", borderRadius: 10 },
+  inputBox: {
+    backgroundColor: "#303030",
+    borderRadius: 10,
+    marginVertical: 4,
+  },
   inputContainer: {
     flexDirection: "row",
     padding: 12,

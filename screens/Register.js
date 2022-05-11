@@ -26,14 +26,14 @@ const Register = ({ navigation }) => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      // headerTitle: "",
+      headerTitle: "注册",
       headerRight: () => (
         <TouchableOpacity
           style={{ paddingLeft: 20 }}
           onPress={() => navigation.goBack()}
           activeOpacity={0.5}
         >
-          <Text style={styles.navButton}>Done</Text>
+          <Text style={styles.navButton}>完成</Text>
         </TouchableOpacity>
       ),
     });
@@ -63,7 +63,7 @@ const Register = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {Platform.OS === "ios" && <Loading show={loading} />}
+      <Loading show={loading} />
       <View style={{ paddingHorizontal: 16, paddingTop: 20 }}>
         {/* <Text style={styles.title}>Log in with your phone number</Text> */}
         <View style={styles.inputBox}>
@@ -73,7 +73,7 @@ const Register = ({ navigation }) => {
               onChangeText={(text) => setEmail(text)}
               value={email}
               placeholderTextColor={"#858585"}
-              placeholder="Email"
+              placeholder="请输入邮箱"
               autoFocus
               keyboardAppearance="dark"
               keyboardType="email-address"
@@ -86,7 +86,7 @@ const Register = ({ navigation }) => {
               onChangeText={(text) => setUserName(text)}
               value={userName}
               placeholderTextColor={"#858585"}
-              placeholder="Username"
+              placeholder="请输入用户名"
               keyboardAppearance="dark"
             />
           </View>
@@ -97,7 +97,7 @@ const Register = ({ navigation }) => {
               onChangeText={(text) => setPassword(text)}
               value={password}
               placeholderTextColor={"#858585"}
-              placeholder="Password"
+              placeholder="请输入密码"
               secureTextEntry
               keyboardAppearance="dark"
             />
@@ -108,7 +108,7 @@ const Register = ({ navigation }) => {
           onPress={handleRegister}
           activeOpacity={0.5}
         >
-          <Text style={styles.buttonText}>Create New Account</Text>
+          <Text style={styles.buttonText}>创建新账号</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

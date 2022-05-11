@@ -1,3 +1,4 @@
+import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import React, { useContext, useState } from "react";
 import {
   StyleSheet,
@@ -6,9 +7,22 @@ import {
   SafeAreaView,
   Alert,
   View,
+  Switch,
 } from "react-native";
 import AppContext from "../context/AppContext";
+import { deleteRoomByRoomId, leaveRoomByUserId } from "../db/room";
 import Color from "../utils/Color";
+
+const MsgMap = {
+  host: {
+    title: "关闭聊天室",
+    content: "聊天室数据将会被清空",
+  },
+  normal: {
+    title: "退出聊天室",
+    content: "聊天室将不会出现在你的聊天列表中",
+  },
+};
 
 const ChatOption = ({
   user,
@@ -16,9 +30,18 @@ const ChatOption = ({
   roomId,
   navigation,
   roomInfo,
-  musicRoomInfo: { info, host },
+  musicRoomInfo,
   handleModalClose,
+  handleClosedChange,
+  handleHostChange,
 }) => {
+  const isHost = musicRoomInfo.creator === user.uid;
+
+  const isOpen = Boolean(musicRoomInfo?.musicMode);
+  const isPublic = roomInfo.roomId === "__PUBLIC";
+
+  const { isClosed } = musicRoomInfo;
+
   const handleSendMusic = () => {
     navigation.navigate("Music", {
       type: "record",
@@ -29,60 +52,128 @@ const ChatOption = ({
   };
 
   const handleLiveMusic = () => {
+    if (!isOpen && !isHost) {
+      alert("创作功能暂未开放，请通知创建者开启");
+      return;
+    }
     navigation.navigate("Music", {
       type: "live",
-      packIndex: 0,
+      initConfig: { ...musicRoomInfo?.musicInfo },
       entry: "实时创作",
       roomId: roomId,
-      host: host || user.uid,
+      isHost,
+      isNewCreate: !musicRoomInfo?.musicMode,
     });
     handleModalClose();
   };
 
   const handleLeaveChat = () => {
     Alert.alert(
-      "Leave the chat",
-      "The chat will no not show up in your chat list",
+      MsgMap[isHost ? "host" : "normal"].title,
+      MsgMap[isHost ? "host" : "normal"].content,
       [
         {
-          text: "Cancel",
+          text: "取消",
           onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
         {
-          text: "Comfirm",
-          onPress: () => {
-            socket.emit("leave-room", roomId, user, () => navigation.goBack());
+          text: "确定",
+          onPress: async () => {
+            if (isHost) {
+              const { code, message } = await deleteRoomByRoomId({ roomId });
+
+              if (code === 200) {
+                socket.emit("close-room", roomId);
+                navigation.navigate("Home");
+              } else {
+                console.log(message);
+                alert(message);
+              }
+            } else {
+              const { code, message } = await leaveRoomByUserId({
+                roomId,
+                user,
+              });
+
+              if (code === 200) {
+                socket.emit("leave-room", roomId, user);
+                navigation.navigate("Home");
+              } else {
+                console.log(message);
+                alert(message);
+              }
+            }
           },
           style: "destructive",
         },
       ]
     );
   };
+
   return (
-    <SafeAreaView style={{ marginVertical: 10, marginHorizontal: 10 }}>
+    <SafeAreaView style={{ marginVertical: 6, marginHorizontal: 12 }}>
       <TouchableOpacity style={styles.mode} onPress={handleSendMusic}>
         <Text style={styles.buttonText}>发送乐段</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.mode} onPress={handleLiveMusic}>
         <Text style={styles.buttonText}>实时创作</Text>
       </TouchableOpacity>
-      {!roomInfo.roomType && (
-        <TouchableOpacity style={styles.button} onPress={handleLeaveChat}>
-          <Text style={styles.buttonText}>Leave Chat</Text>
+      {isHost && (
+        <TouchableOpacity
+          style={{ ...styles.button, backgroundColor: Color.SystemGray4 }}
+          onPress={handleHostChange}
+        >
+          <Text style={styles.buttonText}>转移聊天室权限</Text>
         </TouchableOpacity>
       )}
-      <View>
-        <Text style={styles.info}>RoomID: {roomInfo.roomId}</Text>
-        <Text style={styles.info}>RoomName: {roomInfo.roomName}</Text>
+      {!roomInfo.roomType && !isPublic && (
+        <TouchableOpacity style={styles.button} onPress={handleLeaveChat}>
+          <Text style={styles.buttonText}>
+            {isHost ? "关闭聊天室" : "退出聊天室"}
+          </Text>
+        </TouchableOpacity>
+      )}
+
+      {!isPublic && isHost && (
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            marginVertical: 8,
+          }}
+        >
+          <Text
+            style={{ color: Color.SystemWhite, fontSize: 16, paddingRight: 8 }}
+          >
+            允许新成员加入
+          </Text>
+          <Switch
+            trackColor={{ false: Color.SystemRed, true: Color.SystemGreen }}
+            ios_backgroundColor={Color.SystemRed}
+            onValueChange={() => handleClosedChange(!isClosed)}
+            value={!isClosed}
+          />
+        </View>
+      )}
+
+      <View style={{ paddingTop: 8 }}>
+        <Text style={styles.info}>聊天室ID: {roomInfo.roomId}</Text>
+        <Text style={styles.info}>管理员ID: {musicRoomInfo.creator}</Text>
+        <Text style={styles.info}>聊天室名称: {musicRoomInfo.name}</Text>
+        <Text style={styles.info}>当前人数: {roomInfo.roomSize}</Text>
         <Text style={styles.info}>
-          RoomType: {roomInfo.roomType || "group"}
+          聊天室成员人数: {musicRoomInfo.memberNum}
         </Text>
-        <Text style={styles.info}>isOpen: {String(info?.isOpen)}</Text>
-        <Text style={styles.info}>isPlaying: {String(info?.isPlaying)}</Text>
-        <Text style={styles.info}>nowPlaying: {info?.pack}</Text>
-        <Text style={styles.info}>bpm: {info?.bpm}</Text>
-        <Text style={styles.info}>host: {host}</Text>
+        <Text style={styles.info}>
+          用户权限: {isHost ? "创建者" : "普通成员"}
+        </Text>
+        <Text style={styles.info}>创作模式: {isOpen ? "开启" : "关闭"}</Text>
+        {isOpen && (
+          <Text style={styles.info}>
+            创作模式: {JSON.stringify(musicRoomInfo?.musicInfo)}
+          </Text>
+        )}
       </View>
     </SafeAreaView>
   );

@@ -8,6 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  KeyboardAvoidingView,
 } from "react-native";
 import Loading from "../components/Loading";
 import AppContext from "../context/AppContext";
@@ -74,7 +75,7 @@ const Login = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {Platform.OS === "ios" && <Loading show={loading} />}
+      <Loading show={loading} />
       <Image source={home} style={styles.bg} />
       <LinearGradient
         // Background Linear Gradient
@@ -83,46 +84,61 @@ const Login = ({ navigation }) => {
         style={styles.mask}
       />
       <SafeAreaView style={styles.content}>
-        <Text style={styles.title}>Enjoy and share the music with us!</Text>
-        <View style={styles.inputBox}>
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              onChangeText={(text) => setEmail(text)}
-              value={email}
-              placeholderTextColor={"#858585"}
-              placeholder="Email"
-              keyboardAppearance="dark"
-              keyboardType="email-address"
-            />
-          </View>
-          <View style={styles.inputDivider}></View>
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              onChangeText={(text) => setPassword(text)}
-              value={password}
-              placeholderTextColor={"#858585"}
-              placeholder="Password"
-              secureTextEntry
-              keyboardAppearance="dark"
-            />
-          </View>
-        </View>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleLogin}
-          activeOpacity={0.5}
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS == "ios" ? "padding" : "height"}
         >
-          <Text style={styles.buttonText}>Log In</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate("Register")}
-          activeOpacity={0.5}
-        >
-          <Text style={styles.buttonText}>Create New Account</Text>
-        </TouchableOpacity>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "flex-end",
+              marginBottom: 20,
+            }}
+          >
+            <Text style={styles.title}>开始全新音乐创作旅程</Text>
+            <View style={styles.inputBox}>
+              <View style={styles.inputContainer}>
+                <TextInput
+                  style={styles.input}
+                  onChangeText={(text) => setEmail(text)}
+                  value={email}
+                  placeholderTextColor={"#858585"}
+                  placeholder="请输入邮箱"
+                  keyboardAppearance="dark"
+                  keyboardType="email-address"
+                  returnKeyType="done"
+                />
+              </View>
+              <View style={styles.inputDivider}></View>
+              <View style={styles.inputContainer}>
+                <TextInput
+                  style={styles.input}
+                  onChangeText={(text) => setPassword(text)}
+                  value={password}
+                  placeholderTextColor={"#858585"}
+                  placeholder="请输入密码"
+                  secureTextEntry
+                  keyboardAppearance="dark"
+                  returnKeyType="done"
+                />
+              </View>
+            </View>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleLogin}
+              activeOpacity={0.5}
+            >
+              <Text style={styles.buttonText}>登录</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, styles.outline]}
+              onPress={() => navigation.navigate("Register")}
+              activeOpacity={0.5}
+            >
+              <Text style={styles.buttonText}>创建新账号</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </View>
   );
@@ -159,15 +175,18 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     paddingTop: 30,
     position: "absolute",
-    bottom: 80,
+    top: 0,
+    bottom: 60,
+    left: 0,
+    right: 0,
   },
   title: {
     fontSize: 36,
     color: "white",
     fontWeight: "500",
-    paddingHorizontal: 20,
+    paddingHorizontal: 60,
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 30,
   },
   inputBox: { backgroundColor: "#303030", borderRadius: 10 },
   inputContainer: {
@@ -193,6 +212,9 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 10,
     backgroundColor: Color.SystemBlue,
+  },
+  outline: {
+    backgroundColor: Color.SystemGray4,
   },
   buttonText: {
     color: "white",
